@@ -10,7 +10,7 @@ order: 2
 <div class="yk-wrap">
   <div class="yk-lead yk-lead-centered">
     <div class="yk-lead-photo">
-      <img src="/assets/yonetim-kurulu/firat-cenberlitaş.png" alt="Fırat Çenberlitaş" loading="lazy" decoding="async" />
+      <img src="/assets/yonetim-kurulu/firat-cenberlitas.png" alt="Fırat Çenberlitaş" loading="lazy" decoding="async" />
     </div>
     <div class="yk-lead-text">
       <p class="yk-eyebrow">Yönetim Kurulu Başkanı</p>
