@@ -4,3 +4,6 @@
 /alt-birlikler  /altbirlikler      301
 /standartlar    /faaliyetler       301
 /t%C3%BCz%C3%BCk         /gizlilik          301
+
+# Force www to apex on Netlify
+www.balmerkezbirligi.org  https://balmerkezbirligi.org  301!
