@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Sayfa bulunamadı" description="Aradığınız sayfa taşınmış veya kaldırılmış olabilir." noIndex={true}>
+  <section class="page-shell section-gap space-y-4 text-center">
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">404</p>
+    <h1 class="text-3xl font-semibold text-slate-900">Sayfa bulunamadı</h1>
+    <p class="text-sm text-slate-700">
+      Bağlantı değişmiş olabilir. Ana sayfaya dönerek aradığınız bilgiyi kolayca bulabilirsiniz.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a class="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-card hover:-translate-y-0.5" href="/">
+        Ana sayfa
+      </a>
+      <a class="rounded-full border border-sand-200 px-5 py-3 text-sm font-semibold text-slate-900 hover:border-brand-300" href="/iletisim">
+        İletişim
+      </a>
+    </div>
+  </section>
+</BaseLayout>

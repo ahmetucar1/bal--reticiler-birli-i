@@ -1,0 +1,903 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import ActivityCard from '../components/ActivityCard.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '../config/site';
+
+const activities = (await getCollection('activities', ({ data }) => !data.draft)).sort((a, b) => {
+  const aTime = a.data.date ? Date.parse(a.data.date) : 0;
+  const bTime = b.data.date ? Date.parse(b.data.date) : 0;
+  return bTime - aTime;
+});
+
+const featured = [...activities].sort(() => Math.random() - 0.5).slice(0, 3);
+
+const highlights = [
+  { label: 'Güncel duyurular', href: '/faaliyetler' },
+  { label: 'İletişim', href: '/iletisim' },
+  { label: 'Alt birlikler', href: '/altbirlikler' }
+];
+
+const heroSlides = [
+  { src: '/assets/hero/1.png', alt: 'Saha ziyareti' },
+  { src: '/assets/hero/8.png', alt: 'Arı kovanları ve üretim alanı' },
+  { src: '/assets/hero/10.png', alt: 'Kovan kontrolü' },
+  { src: '/assets/hero/12.png', alt: 'Ekipman hazırlığı' },
+  { src: '/assets/hero/14.png', alt: 'Toplantı ve bilgilendirme' },
+  { src: '/assets/hero/16.png', alt: 'Üretici ziyaretleri' },
+  { src: '/assets/hero/18.png', alt: 'Saha ölçüm çalışması' },
+  { src: '/assets/hero/21.png', alt: 'Üreticilerle değerlendirme' },
+  { src: '/assets/hero/23.png', alt: 'Depolama ve lojistik' },
+  { src: '/assets/hero/28.png', alt: 'Arazi inceleme' }
+];
+
+const subUnions = [
+  { title: 'İl birlikleri', note: 'Doğrulanmış iletişim bilgileri güncelleniyor.' },
+  { title: 'Koordinasyon noktaları', note: 'Bölgesel temsil listesi hazırlanıyor.' },
+  { title: 'İş birliği kanalları', note: 'Paydaş bildirimleri için tek merkez.' },
+  { title: 'Eğitim ve bilgilendirme', note: 'Planlanan takvim paylaşılacak.' },
+  { title: 'Standartlar', note: 'Kalite ve izlenebilirlik duyuruları.' },
+  { title: 'Geri bildirim', note: 'Bilgi güncellemesi için İletişim sayfası.' }
+];
+---
+
+<BaseLayout title="Ana Sayfa" description={siteConfig.description} canonical={siteConfig.url}>
+  <section class="relative isolate overflow-hidden">
+    <div aria-hidden="true" class="absolute inset-0 hero-bg"></div>
+    <div aria-hidden="true" class="absolute -left-10 -top-24 h-72 w-72 rounded-full bg-amber-200/45 blur-3xl"></div>
+    <div aria-hidden="true" class="absolute right-4 top-10 h-80 w-80 rounded-full bg-pine-200/40 blur-3xl"></div>
+    <div aria-hidden="true" class="absolute left-1/3 bottom-[-6rem] h-[18rem] w-[18rem] rounded-full bg-white/60 blur-[140px]"></div>
+
+    <div class="page-shell relative z-10 py-6 sm:py-12 lg:py-20">
+      <div class="grid gap-10 lg:grid-cols-12 lg:items-center">
+        <div class="space-y-6 lg:col-span-5">
+          <span class="inline-flex items-center gap-2 rounded-full bg-amber-100/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-pine-800">
+            Resmî web sitesi
+          </span>
+          <h1 class="text-4xl leading-tight sm:text-5xl lg:text-[3.1rem] text-slate-900">
+            Türkiye Bal Üreticileri Merkez Birliği
+          </h1>
+          <p class="text-lg text-slate-800">
+            Arıcıların ortak sesi: üretici birlikleriyle koordinasyon, kalite ve izlenebilirlik için güncel duyurular ve
+            şeffaf bilgilendirme.
+          </p>
+          <div class="flex flex-wrap gap-3 -translate-y-1">
+            <a
+              href="/faaliyetler"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-pine-600 px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700 focus-visible:shadow-focus"
+              style="color: #fff;"
+            >
+              Faaliyetler
+            </a>
+            <a
+              href="/hakkimizda"
+              class="inline-flex items-center justify-center gap-2 rounded-full border border-sand-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-card transition hover:-translate-y-0.5 hover:border-pine-200 hover:text-pine-900 focus-visible:shadow-focus"
+            >
+              Hakkımızda
+            </a>
+          </div>
+          <div class="flex flex-wrap gap-2 -translate-y-1.5">
+            {highlights.map((item) => (
+              <a
+                class="inline-flex items-center gap-2 rounded-full border border-sand-200 bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:border-pine-200 hover:bg-white"
+                href={item.href}
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-pine-500"></span>
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div class="hero-card">
+            <div class="hero-slider">
+              {heroSlides.map((slide, idx) => (
+                <figure class="hero-slide" style={`--i:${idx}; --count:${heroSlides.length};`}>
+                  <div class="hero-media">
+                    <img src={slide.src} alt={slide.alt} />
+                  </div>
+                  <figcaption class="hero-caption">
+                    <span>{slide.alt}</span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell section-gap summary-section">
+    <div class="summary-pane">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-start">
+        <div class="space-y-5 lg:col-span-6">
+          <div class="summary-heading">
+            <SectionHeading
+              eyebrow="Kurum özeti"
+              title="Arıcıların ortak sesi"
+              description="Merkez birlik, üretici birlikleriyle eşgüdümlü çalışarak kalite güvencesi, mevzuat takibi ve doğru bilgilendirmeyi sağlar."
+            />
+            <div class="heading-decor">
+              <span class="bar"></span>
+              <span class="dot"></span>
+              <span class="bar short"></span>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4 lg:col-span-6">
+          <div class="summary-card flex items-start gap-3">
+            <span class="mt-2 h-2.5 w-2.5 rounded-full bg-pine-500"></span>
+            <div class="space-y-1">
+              <p class="font-semibold text-slate-900">Üretici koordinasyonu</p>
+              <p class="text-sm text-slate-700">İl birlikleriyle düzenli temas ve ortak karar iletişimi.</p>
+            </div>
+          </div>
+          <div class="summary-card flex items-start gap-3">
+            <span class="mt-2 h-2.5 w-2.5 rounded-full bg-pine-500"></span>
+            <div class="space-y-1">
+              <p class="font-semibold text-slate-900">Kalite ve izlenebilirlik</p>
+              <p class="text-sm text-slate-700">Arı ürünlerinde standartların duyurulması ve takibi.</p>
+            </div>
+          </div>
+          <div class="summary-card flex items-start gap-3">
+            <span class="mt-2 h-2.5 w-2.5 rounded-full bg-pine-500"></span>
+            <div class="space-y-1">
+              <p class="font-semibold text-slate-900">Paydaş iletişimi</p>
+              <p class="text-sm text-slate-700">Resmî duyuruların üreticilere hızlı ve açık aktarımı.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell section-gap">
+    <div class="activities-pane space-y-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading
+          eyebrow="Faaliyetler"
+          title="Öne çıkan çalışmalar"
+          description="Saha notları ve ziyaretlerden seçilen güncel faaliyetler."
+        />
+        <a
+          href="/faaliyetler"
+          class="inline-flex items-center justify-center gap-2 rounded-full border border-pine-600 bg-pine-600 px-4 py-2 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:border-pine-700 hover:bg-pine-700 focus-visible:shadow-focus"
+          style="color: #fff;"
+        >
+          Tüm faaliyetler
+        </a>
+      </div>
+
+      {featured.length > 0 ? (
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {featured.map((item) => (
+            <ActivityCard
+            title={item.data.title}
+            summary={item.data.summary}
+            date={item.data.date}
+            image={item.data.featured_image}
+            href={`/faaliyetler/${item.slug}/`}
+          />
+        ))}
+      </div>
+      ) : (
+        <div class="rounded-2xl border border-dashed border-sand-200 bg-sand-50 px-4 py-6 text-sm text-slate-700">
+          Faaliyet içerikleri hazırlanıyor.
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="page-shell section-gap">
+    <div class="subunion-pane space-y-5">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <SectionHeading
+          eyebrow="Alt birlikler"
+          title="Koordinasyon ağı"
+          description="Doğrulanmış alt birlik bilgileri güncellenmektedir. Bilgi paylaşımı için bizimle iletişime geçebilirsiniz."
+        />
+        <a
+          href="/iletisim"
+          class="inline-flex items-center justify-center gap-2 rounded-full border border-sand-200 bg-white px-4 py-2 text-sm font-semibold text-pine-800 shadow-card transition hover:-translate-y-0.5 hover:border-pine-200 focus-visible:shadow-focus"
+        >
+          Bilgi ilet
+        </a>
+      </div>
+      <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {subUnions.map((item) => (
+          <li class="rounded-xl border border-sand-200 bg-white/92 px-4 py-3 shadow-card">
+            <p class="font-semibold text-slate-900">{item.title}</p>
+            <p class="text-xs text-slate-600">{item.note}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="page-shell section-gap contact-section">
+    <div class="contact-pane grid gap-5 lg:gap-6 lg:grid-cols-12 lg:items-start">
+      <div class="space-y-3 lg:col-span-5 lg:self-start">
+        <div class="inline-flex items-center gap-2 rounded-full bg-pine-100/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-pine-800">
+          İletişim
+        </div>
+        <h2 class="text-xl sm:text-2xl font-semibold text-slate-900 leading-snug">Doğrudan bize ulaşın</h2>
+        <p class="text-sm sm:text-base text-slate-700">
+          Sorularınız ve paylaşımlarınız için iletişime geçebilirsiniz. Telefon ve e-posta kanalları hızlı dönüş için açık.
+        </p>
+
+        <div class="space-y-2.5">
+          <div class="contact-card">
+            <div class="contact-label">Genel Sekreter</div>
+            <div class="contact-value">Cansel Solak</div>
+          </div>
+          <a class="contact-card contact-link" href={`tel:${siteConfig.contacts.phone.replace(/\\s+/g, '')}`}>
+            <div class="contact-label">Telefon</div>
+            <div class="contact-value">{siteConfig.contacts.phone}</div>
+          </a>
+          <a class="contact-card contact-link" href={`mailto:${siteConfig.contacts.email || 'merbalbir@gmail.com'}`}>
+            <div class="contact-label">E-posta</div>
+            <div class="contact-value">{siteConfig.contacts.email || 'merbalbir@gmail.com'}</div>
+          </a>
+          <div class="contact-card">
+            <div class="contact-label">Adres</div>
+            <div class="contact-value">
+              Ehlibeyt Mahallesi 1242. Cad. 2/22<br />
+              Çankaya, Ankara
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 pt-1">
+          <a
+            href="/iletisim"
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-pine-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700 focus-visible:shadow-focus"
+            style="color:#fff;"
+          >
+            İletişim sayfası
+          </a>
+          <a
+            href="https://www.google.com/maps/dir/?api=1&destination=Ehlibeyt%20Mahallesi%201242.%20Cad.%202%2F22%20%C3%87ankaya%20Ankara"
+            class="inline-flex items-center justify-center gap-2 rounded-full border border-pine-200 bg-white px-5 py-2.5 text-sm font-semibold text-pine-800 shadow-card transition hover:-translate-y-0.5 hover:border-pine-300 focus-visible:shadow-focus"
+          >
+            Yol tarifi
+          </a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 lg:mt-10 xl:mt-12">
+        <div class="map-card">
+          <div class="map-header">
+            <span class="dot red"></span>
+            <span class="dot amber"></span>
+            <span class="dot green"></span>
+            <span class="map-title">Ehlibeyt Mahallesi 1242. Cad. 2/22, Çankaya / Ankara</span>
+          </div>
+          <div class="map-embed">
+            <iframe
+              title="Ehlibeyt Mahallesi 1242. Cad. 2/22 Çankaya Ankara"
+              loading="lazy"
+              src="https://www.google.com/maps?q=Ehlibeyt%20Mahallesi%201242.%20Cad.%202/22%20%C3%87ankaya%20Ankara&output=embed"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- Slider artık saf CSS animasyonla dönüyor; JS kaldırıldı -->
+
+</BaseLayout>
+
+<style>
+  .summary-section {
+    position: relative;
+    background:
+      radial-gradient(120% 140% at 15% 20%, rgba(255, 207, 150, 0.35), transparent 55%),
+      radial-gradient(120% 140% at 85% 10%, rgba(137, 199, 174, 0.35), transparent 55%),
+      linear-gradient(185deg, #fefaf3 0%, #f5faf7 48%, #eef4ff 100%);
+    width: 100%;
+  }
+
+  .summary-pane {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.35rem;
+    padding: clamp(22px, 4vw, 36px);
+    width: 100%;
+    background:
+      radial-gradient(120% 120% at 20% 8%, rgba(142, 205, 174, 0.32) 0, transparent 42%),
+      radial-gradient(110% 110% at 82% 10%, rgba(255, 214, 157, 0.28) 0, transparent 45%),
+      linear-gradient(135deg, #f7fbf6 0%, #f3f7ff 55%, #eef4ff 100%);
+    border: 1px solid rgba(13, 122, 76, 0.08);
+    box-shadow: 0 20px 60px rgba(15, 43, 36, 0.12);
+    isolation: isolate;
+  }
+
+  .summary-pane > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .summary-section .grid {
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .summary-pane::before,
+  .summary-pane::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.9;
+    z-index: 0;
+  }
+
+  .summary-pane::before {
+    background: radial-gradient(65% 65% at 15% 70%, rgba(12, 124, 78, 0.12), transparent 50%);
+    filter: blur(0);
+  }
+
+  .summary-pane::after {
+    background: radial-gradient(55% 55% at 85% 60%, rgba(9, 20, 40, 0.08), transparent 60%);
+  }
+
+  .summary-heading .heading-decor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2.1rem;
+    max-width: 640px;
+    margin-left: 0;
+  }
+
+  .summary-heading .max-w-3xl p:last-child {
+    margin-top: 0.65rem;
+  }
+
+  .heading-decor .bar {
+    flex: 1 1 auto;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0c7c4e 0%, #63c27b 50%, #f5c453 100%);
+    box-shadow: 0 8px 24px rgba(12, 124, 78, 0.18);
+  }
+
+  .heading-decor .bar.short {
+    flex: 0.5 1 auto;
+    background: linear-gradient(90deg, #0c7c4e 0%, #7fd19e 100%);
+  }
+
+  .heading-decor .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: #0d7a4c;
+    box-shadow:
+      0 0 0 6px rgba(13, 122, 76, 0.12),
+      0 10px 24px rgba(13, 122, 76, 0.25);
+  }
+
+  .summary-card {
+    border-radius: 1rem;
+    border: 1px solid #e3eadf;
+    background: rgba(255, 255, 255, 0.94);
+    padding: 0.95rem 1.05rem;
+    box-shadow: 0 12px 36px rgba(15, 49, 35, 0.08);
+  }
+
+  .activities-pane {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    padding: clamp(18px, 3vw, 28px);
+    background:
+      radial-gradient(140% 140% at 18% 12%, rgba(248, 201, 145, 0.32), transparent 45%),
+      radial-gradient(120% 120% at 82% 0%, rgba(125, 189, 160, 0.28), transparent 48%),
+      linear-gradient(145deg, #fbf6ee 0%, #f4faf5 42%, #eef6ff 100%);
+    border: 1px solid rgba(28, 91, 62, 0.08);
+    box-shadow: 0 16px 48px rgba(12, 41, 60, 0.12);
+  }
+
+  .activities-pane::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(85% 85% at 12% 65%, rgba(13, 122, 76, 0.08), transparent 55%),
+      radial-gradient(65% 65% at 78% 65%, rgba(38, 88, 132, 0.08), transparent 58%);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  .activities-pane > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .subunion-pane {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.15rem;
+    padding: clamp(18px, 3vw, 26px);
+    background:
+      radial-gradient(115% 115% at 18% 12%, rgba(255, 212, 140, 0.16) 0, transparent 46%),
+      radial-gradient(120% 120% at 82% 10%, rgba(123, 189, 160, 0.15) 0, transparent 48%),
+      linear-gradient(135deg, #fdf8ef 0%, #f6fbf7 50%, #eef5ff 100%);
+    border: 1px solid rgba(12, 124, 78, 0.05);
+    box-shadow: 0 14px 42px rgba(17, 46, 52, 0.12);
+  }
+
+  .subunion-pane::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(75% 75% at 85% 65%, rgba(12, 124, 78, 0.07), transparent 55%);
+    pointer-events: none;
+    opacity: 0.85;
+  }
+
+  .subunion-pane > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .contact-section {
+    padding-bottom: 4rem;
+  }
+
+  .contact-pane {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    padding: clamp(16px, 3vw, 28px);
+    background:
+      radial-gradient(130% 130% at 18% 5%, rgba(255, 212, 140, 0.18), transparent 45%),
+      radial-gradient(120% 120% at 80% 15%, rgba(99, 184, 151, 0.18), transparent 48%),
+      linear-gradient(140deg, #fdf8ef 0%, #f6fbf7 50%, #eef6ff 100%);
+    border: 1px solid rgba(20, 92, 62, 0.08);
+    box-shadow: 0 18px 52px rgba(15, 45, 54, 0.12);
+  }
+
+  .contact-pane::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(80% 80% at 15% 70%, rgba(13, 122, 76, 0.08), transparent 55%),
+      radial-gradient(70% 70% at 88% 60%, rgba(36, 74, 112, 0.08), transparent 58%);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .contact-pane > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .contact-card {
+    display: block;
+    border: 1px solid rgba(12, 124, 78, 0.12);
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    box-shadow: 0 5px 14px rgba(12, 41, 60, 0.08);
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .contact-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(12, 41, 60, 0.12);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  .contact-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .contact-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #0d7a4c;
+    margin-bottom: 0.25rem;
+  }
+
+  .contact-value {
+    font-size: 0.92rem;
+    color: #0f172a;
+    line-height: 1.35;
+  }
+
+  .map-card {
+    width: 100%;
+    max-width: 720px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(12, 124, 78, 0.1);
+    background: #0b1324;
+    box-shadow: 0 12px 32px rgba(10, 25, 40, 0.2);
+  }
+
+  .map-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.55rem 0.85rem;
+    background: linear-gradient(90deg, rgba(13, 122, 76, 0.18), rgba(11, 19, 36, 0.85));
+    color: #e8f5ee;
+    font-size: 0.82rem;
+  }
+
+  .map-header .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    display: inline-flex;
+  }
+  .map-header .dot.red {
+    background: #f87171;
+  }
+  .map-header .dot.amber {
+    background: #fbbf24;
+  }
+  .map-header .dot.green {
+    background: #34d399;
+  }
+  .map-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .map-embed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    background: #0b1324;
+    min-height: 220px;
+  }
+
+  .map-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (max-width: 768px) {
+    .summary-pane {
+      padding: 16px;
+      border-radius: 1rem;
+      margin: 0 auto;
+      max-width: 100%;
+    }
+    .activities-pane {
+      border-radius: 1rem;
+      padding: 16px;
+    }
+    .subunion-pane {
+      border-radius: 1rem;
+      padding: 16px;
+    }
+    .contact-pane {
+      border-radius: 1rem;
+      padding: 16px;
+    }
+
+    .map-title {
+      font-size: 0.78rem;
+      max-width: 100%;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+    }
+
+    .map-embed {
+      aspect-ratio: 4 / 3;
+      min-height: 200px;
+    }
+
+    .map-card {
+      margin-top: 12px;
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .map-header {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .summary-heading h2 {
+      font-size: clamp(1.7rem, 6vw, 2rem);
+      line-height: 1.15;
+    }
+
+    .summary-heading .max-w-3xl p {
+      font-size: 0.95rem;
+    }
+
+    .summary-heading .heading-decor {
+      margin-top: 1.2rem;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .summary-heading {
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .summary-card {
+      width: 100%;
+    }
+
+    .summary-card {
+      padding: 0.85rem 0.95rem;
+    }
+
+    .hero-card,
+    .hero-slider,
+    .hero-media {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .hero-card {
+      margin: 0 auto;
+      max-width: 100%;
+    }
+
+    .hero-slider {
+      padding: 0.6rem;
+      border-radius: 1rem;
+      max-width: 100%;
+      aspect-ratio: auto;
+      min-height: 0;
+      height: clamp(240px, 72vw, 340px);
+    }
+
+    .hero-media {
+      border-radius: 0.75rem;
+    }
+
+    .hero-caption {
+      font-size: 0.82rem;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 0.25rem;
+    }
+
+  }
+
+  @media (max-width: 480px) {
+    .summary-pane {
+      padding: 14px;
+      margin: 0 auto;
+    }
+
+    .summary-heading .heading-decor {
+      margin-top: 1rem;
+    }
+
+    .summary-heading .max-w-3xl p:last-child {
+      margin-top: 0.4rem;
+    }
+
+    .hero-slider {
+      height: clamp(220px, 75vw, 300px);
+      padding: 0.5rem;
+    }
+
+    .hero-caption {
+      font-size: 0.78rem;
+      padding: 0.55rem 0.75rem;
+    }
+
+    .map-title {
+      max-width: 100%;
+      font-size: 0.76rem;
+      text-align: left;
+    }
+
+    .contact-pane {
+      padding: 14px;
+    }
+  }
+
+  .hero-bg {
+    background:
+      radial-gradient(120% 120% at 15% 10%, rgba(255, 221, 157, 0.45) 0, transparent 40%),
+      radial-gradient(120% 120% at 80% 0%, rgba(139, 188, 160, 0.4) 0, transparent 42%),
+      linear-gradient(135deg, #fdf6e3 0%, #f3f7f4 45%, #e8f1ff 100%);
+  }
+
+  .hero-card {
+    position: relative;
+    overflow: visible;
+    border-radius: 1.2rem;
+    border: none;
+    background: transparent;
+    box-shadow: 0 30px 90px rgba(10, 18, 30, 0.22);
+    padding: 0;
+  }
+
+  .hero-slider {
+    position: relative;
+    width: 100%;
+    height: clamp(430px, 50vw, 640px);
+    border-radius: 1.15rem;
+    overflow: hidden;
+    background: radial-gradient(140% 140% at 15% 15%, rgba(255, 255, 255, 0.16), transparent 55%),
+      radial-gradient(140% 140% at 85% 0%, rgba(255, 255, 255, 0.12), transparent 50%),
+      #0a1424;
+    isolation: isolate;
+    padding: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @supports (aspect-ratio: 16 / 9) {
+    .hero-slider {
+      aspect-ratio: 16 / 9;
+      height: auto;
+      min-height: 430px;
+    }
+  }
+
+  /* Mobile override: keep slider inside viewport and avoid horizontal overflow */
+  @media (max-width: 768px) {
+    .hero-slider {
+      aspect-ratio: auto !important;
+      height: clamp(240px, 72vw, 340px);
+      min-height: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-slider {
+      height: clamp(220px, 75vw, 300px);
+    }
+  }
+
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    opacity: 0;
+    animation: hero-fade calc(var(--count, 1) * 5s) linear infinite;
+    animation-delay: calc(var(--i, 0) * 5s);
+    overflow: hidden;
+    background: #0f1724;
+  }
+
+  .hero-media {
+    flex: 1 1 auto;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    background: #0a1424;
+    border-radius: 0.9rem;
+    overflow: hidden;
+  }
+
+  .hero-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+  }
+
+  .hero-caption {
+    position: relative;
+    margin: 0 0 0.35rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.9rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  @media (max-width: 768px) {
+    .hero-media {
+      border-radius: 0.75rem;
+    }
+
+    .hero-caption {
+      font-size: 0.82rem;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 0.25rem;
+    }
+
+  }
+
+  @media (max-width: 480px) {
+    .hero-caption {
+      font-size: 0.78rem;
+      padding: 0.55rem 0.75rem;
+    }
+  }
+
+  @keyframes hero-fade {
+    0%,
+    8% {
+      opacity: 1;
+    }
+    10%,
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    const slider = document.querySelector('[data-hero-slider]');
+    if (!slider) return;
+    const slides = Array.from(slider.querySelectorAll('.hero-slide'));
+    const dots = Array.from(slider.querySelectorAll('.hero-dot'));
+    const prev = slider.querySelector('.hero-nav-prev');
+    const next = slider.querySelector('.hero-nav-next');
+    const intervalMs = 5000;
+    let active = 0;
+    let timer;
+
+    if (slides.length === 0) return;
+
+    const setActive = (idx) => {
+      active = (idx + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle('is-active', i === active));
+      dots.forEach((dot, i) => dot.classList.toggle('is-active', i === active));
+    };
+
+    const start = () => {
+      timer = window.setInterval(() => setActive(active + 1), intervalMs);
+    };
+
+    const restart = () => {
+      clearInterval(timer);
+      start();
+    };
+
+    prev?.addEventListener('click', () => {
+      setActive(active - 1);
+      restart();
+    });
+
+    next?.addEventListener('click', () => {
+      setActive(active + 1);
+      restart();
+    });
+
+    dots.forEach((dot, i) =>
+      dot.addEventListener('click', () => {
+        setActive(i);
+        restart();
+      })
+    );
+
+    setActive(0);
+    if (slides.length > 1) start();
+  });
+</script>

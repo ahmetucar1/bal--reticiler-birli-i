@@ -1,0 +1,63 @@
+---
+interface LinkItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  primaryCta: LinkItem;
+  secondaryCta: LinkItem;
+  highlights: LinkItem[];
+  eyebrow?: string;
+}
+
+const { title, description, primaryCta, secondaryCta, highlights, eyebrow } = Astro.props as Props;
+---
+
+<section class="relative overflow-hidden bg-gradient-to-br from-[#f8f6f2] via-[#f1f5f2] to-[#e9f1eb]">
+  <div class="absolute inset-0 opacity-22 bg-[radial-gradient(120%_120%_at_15%_15%,rgba(137,189,165,0.18),transparent_45%),radial-gradient(120%_120%_at_80%_25%,rgba(213,189,134,0.16),transparent_45%)]" />
+  <div class="relative mx-auto grid min-h-[72vh] max-w-6xl items-center gap-10 px-4 pb-18 pt-24 sm:px-6 lg:px-8 lg:grid-cols-[1.1fr_0.9fr]">
+    <div class="space-y-6">
+      {eyebrow && (
+        <p class="inline-flex w-fit rounded-full bg-pine-100 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-pine-800">
+          {eyebrow}
+        </p>
+      )}
+      <h1 class="max-w-3xl text-3xl leading-tight text-slate-900 sm:text-4xl lg:text-5xl">{title}</h1>
+      <p class="max-w-2xl text-lg text-slate-800">{description}</p>
+      <div class="flex flex-wrap gap-3">
+        <a
+          href={primaryCta.href}
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-pine-600 px-6 py-3 text-sm font-semibold text-white no-underline shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700 focus-visible:shadow-focus"
+        >
+          {primaryCta.label}
+        </a>
+        <a
+          href={secondaryCta.href}
+          class="inline-flex items-center justify-center gap-2 rounded-full border border-pine-200 bg-white px-6 py-3 text-sm font-semibold text-pine-900 no-underline shadow-card transition hover:-translate-y-0.5 hover:border-pine-300 hover:text-pine-900 focus-visible:shadow-focus"
+        >
+          {secondaryCta.label}
+        </a>
+      </div>
+      <div class="flex flex-wrap gap-2 text-sm text-slate-700">
+        <span class="text-slate-600">Resmî duyurular • Yönetim bilgileri • Alt birlik koordinasyonu</span>
+      </div>
+    </div>
+
+    <div class="space-y-4 rounded-3xl border border-sand-200 bg-white/85 p-6 shadow-soft backdrop-blur">
+      <p class="text-sm font-semibold text-slate-900">Öne çıkan başlıklar</p>
+      <ul class="space-y-3 text-sm text-slate-800">
+        {highlights.map((item) => (
+          <li class="flex items-center justify-between gap-3">
+            <a class="flex-1 underline-offset-4 hover:text-pine-700" href={item.href}>{item.label}</a>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="m9 5 7 7-7 7" />
+            </svg>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>

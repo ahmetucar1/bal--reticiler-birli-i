@@ -1,0 +1,70 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { siteConfig } from '../config/site';
+import { buildMeta, organizationJsonLd, type MetaOptions } from '../lib/seo';
+import '../styles/global.css';
+
+export interface Props extends MetaOptions {
+  structuredData?: Record<string, unknown>[];
+  lang?: string;
+  className?: string;
+}
+
+const { structuredData = [], lang = 'tr', className = '', ...rest } = Astro.props;
+const meta = buildMeta(rest);
+const jsonLd = [organizationJsonLd(), ...structuredData].filter(Boolean);
+const currentPath = Astro.url.pathname;
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.description} />
+    <link rel="canonical" href={meta.canonical} />
+    {meta.noIndex && <meta name="robots" content="noindex,nofollow" />}
+    <meta property="og:type" content={meta.type} />
+    <meta property="og:title" content={meta.title} />
+    <meta property="og:description" content={meta.description} />
+    <meta property="og:image" content={meta.image} />
+    <meta property="og:locale" content={siteConfig.locale} />
+    <meta property="og:site_name" content={siteConfig.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {siteConfig.twitterHandle && <meta name="twitter:site" content={siteConfig.twitterHandle} />}
+    <meta name="twitter:title" content={meta.title} />
+    <meta name="twitter:description" content={meta.description} />
+    <meta name="twitter:image" content={meta.image} />
+    <link rel="icon" type="image/png" href="/favicon.png?v=9" />
+    <link rel="shortcut icon" href="/favicon.png?v=9" />
+    <link rel="apple-touch-icon" href="/favicon.png?v=9" />
+    {jsonLd.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+  </head>
+  <body class="min-h-screen text-base bg-sand-50">
+    <a
+      href="#icerik"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:text-brand-700 shadow-lg"
+    >
+      İçeriğe geç
+    </a>
+    <Header currentPath={currentPath} />
+    <main
+      id="icerik"
+      class={`flex-1 relative ${className}`}
+      style="
+        background:
+          radial-gradient(120% 120% at 18% 0%, rgba(255, 214, 157, 0.35), transparent 42%),
+          radial-gradient(120% 120% at 82% 8%, rgba(144, 201, 176, 0.32), transparent 45%),
+          linear-gradient(185deg, #fdf7ec 0%, #f5faf6 48%, #eef4ff 100%);
+      "
+    >
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

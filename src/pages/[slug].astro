@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection, getEntryBySlug } from 'astro:content';
+import { buildCanonical } from '../lib/seo';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages', ({ data }) => !data.draft);
+  return pages.map((page) => ({
+    params: { slug: page.slug }
+  }));
+}
+
+const slug = Astro.params.slug;
+const page = slug ? await getEntryBySlug('pages', slug) : null;
+
+if (!page) {
+  return Astro.redirect('/404');
+}
+
+const { Content } = await page.render();
+const canonical = buildCanonical(slug ? `/${slug}/` : undefined, page.data.canonical);
+---
+
+<BaseLayout title={page.data.title} description={page.data.description} canonical={canonical}>
+  <section class="page-shell section-gap space-y-5">
+    <header class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">Sayfa</p>
+      <h1 class="text-3xl leading-tight text-slate-900">{page.data.title}</h1>
+      <p class="text-base text-slate-700">{page.data.description}</p>
+    </header>
+    <article class="markdown">
+      <Content />
+    </article>
+  </section>
+</BaseLayout>

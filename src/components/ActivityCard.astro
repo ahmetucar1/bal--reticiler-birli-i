@@ -1,0 +1,41 @@
+---
+import { formatDate } from '../lib/format';
+
+interface Props {
+  title: string;
+  summary: string;
+  href: string;
+  date?: string;
+  image?: string;
+}
+
+const { title, summary, href, date, image } = Astro.props as Props;
+---
+
+<article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-sand-200 bg-white shadow-card transition hover:-translate-y-1 hover:shadow-soft focus-within:-translate-y-1 focus-within:shadow-soft">
+  <div class="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-sand-100 via-white to-pine-50">
+    {image ? (
+      <img src={image} alt={title} loading="lazy" decoding="async" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+    ) : (
+      <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-50 to-pine-50 text-brand-700">
+        <span class="text-lg font-semibold">Faaliyet</span>
+      </div>
+    )}
+  </div>
+  <div class="flex flex-1 flex-col gap-3 p-5">
+    <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-pine-700">
+      <span>Faaliyet</span>
+      {date && <span class="text-slate-500">• {formatDate(date)}</span>}
+    </div>
+    <h3 class="text-xl font-semibold text-slate-900 group-hover:text-pine-700">
+      <a href={href} class="focus-visible:shadow-focus rounded-md px-1 -mx-1">{title}</a>
+    </h3>
+    <p class="text-sm text-slate-700 line-clamp-3">{summary}</p>
+    <div class="mt-auto">
+      <a class="inline-flex items-center gap-2 text-sm font-semibold text-pine-700 hover:text-pine-900" href={href}>
+        İncele
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</article>

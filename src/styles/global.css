@@ -1,0 +1,189 @@
+@import "tailwindcss";
+@import "@fontsource-variable/manrope";
+
+@theme {
+  --font-sans: "Manrope Variable", "Manrope", "Segoe UI", -apple-system, system-ui, sans-serif;
+
+  --color-brand-50: #ecf8f4;
+  --color-brand-100: #d8f1e7;
+  --color-brand-200: #b7e3d2;
+  --color-brand-300: #8fd0b5;
+  --color-brand-400: #65b693;
+  --color-brand-500: #3e9f75;
+  --color-brand-600: #2f8060;
+  --color-brand-700: #25654c;
+  --color-brand-800: #1c4c3a;
+  --color-brand-900: #123429;
+
+  --color-pine-50: #eef4f2;
+  --color-pine-100: #d9e6e0;
+  --color-pine-200: #b8d1c5;
+  --color-pine-300: #8bb49f;
+  --color-pine-400: #5f987a;
+  --color-pine-500: #3e7c5f;
+  --color-pine-600: #2e634a;
+  --color-pine-700: #234d3a;
+  --color-pine-800: #18362a;
+  --color-pine-900: #10241d;
+
+  --color-sand-50: #f6f7f9;
+  --color-sand-100: #e8ecf0;
+  --color-sand-200: #d6dfe6;
+
+  --shadow-soft: 0 20px 60px rgba(12, 23, 38, 0.08);
+  --shadow-card: 0 14px 38px rgba(10, 18, 30, 0.06);
+  --shadow-focus: 0 0 0 3px rgba(201, 114, 31, 0.25);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+
+  --text-sm: 0.95rem;
+  --text-base: 1.05rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.35rem;
+  --text-2xl: clamp(1.6rem, 2vw, 2.05rem);
+  --text-3xl: clamp(2rem, 2.6vw, 2.6rem);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-sand-50 text-slate-900 antialiased;
+  font-family: var(--font-sans);
+  font-feature-settings: "ss02" on, "ss01" on, "cv01" on;
+  letter-spacing: 0.01em;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  @apply text-brand-700 underline-offset-4 transition-colors duration-150;
+}
+
+a:hover,
+a:focus-visible {
+  @apply text-brand-800;
+}
+
+.link-reset {
+  @apply text-white no-underline visited:text-white hover:text-white focus:text-white focus-visible:text-white;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply font-semibold text-slate-900 tracking-tight;
+}
+
+p {
+  @apply leading-relaxed text-slate-800;
+}
+
+::selection {
+  @apply bg-brand-200 text-brand-900;
+}
+
+:focus-visible {
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
+.page-shell {
+  @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.section-gap {
+  @apply py-12 sm:py-16;
+}
+
+@media (max-width: 640px) {
+  .page-shell {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+  }
+
+  .section-gap {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+.markdown {
+  @apply space-y-4 text-slate-800 leading-relaxed;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  @apply font-semibold text-slate-900 tracking-tight;
+}
+
+.markdown h1 {
+  @apply text-3xl;
+}
+
+.markdown h2 {
+  @apply text-2xl mt-6;
+}
+
+.markdown h3 {
+  @apply text-xl mt-4;
+}
+
+.markdown p {
+  @apply text-base;
+}
+
+.markdown ul {
+  @apply list-disc space-y-2 pl-5;
+}
+
+.markdown ol {
+  @apply list-decimal space-y-2 pl-5;
+}
+
+.markdown a {
+  @apply text-brand-700 underline underline-offset-2 hover:text-brand-800;
+}
+
+.markdown blockquote {
+  @apply border-l-4 border-brand-200 bg-sand-50 px-4 py-3 text-slate-800;
+}
+
+.markdown table {
+  @apply w-full border-collapse;
+}
+
+.markdown th,
+.markdown td {
+  @apply border border-sand-200 px-3 py-2 text-left;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

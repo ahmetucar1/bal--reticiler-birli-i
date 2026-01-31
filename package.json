@@ -1,0 +1,21 @@
+{
+  "name": "balmerkezbirligi",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Türkiye Bal Üreticileri Merkez Birliği kurumsal web sitesi (Astro + Tailwind, SSG).",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "crawl": "node scripts/crawl-site.mjs",
+    "ocr": "node scripts/ocr-slides.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "^5.2.8",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.16.15",
+    "cheerio": "^1.2.0",
+    "tailwindcss": "^4.1.18"
+  }
+}

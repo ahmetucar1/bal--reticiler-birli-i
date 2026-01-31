@@ -1,0 +1,102 @@
+---
+interface Highlight {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+  highlights?: Highlight[];
+}
+
+const { title, description, eyebrow, primaryCta, secondaryCta, highlights = [] } = Astro.props as Props;
+---
+
+<section class="relative overflow-hidden bg-gradient-to-br from-[#f8f6f2] via-[#f1f5f2] to-[#e9f1eb]">
+  <div class="absolute inset-0 opacity-22 bg-[radial-gradient(120%_120%_at_15%_20%,rgba(137,189,165,0.18),transparent_45%),radial-gradient(120%_120%_at_80%_25%,rgba(213,189,134,0.2),transparent_45%)]" />
+  <div class="relative mx-auto grid min-h-[78vh] max-w-6xl items-center gap-10 px-4 pb-20 pt-24 sm:px-6 lg:px-8 lg:grid-cols-[1.05fr_0.95fr]">
+    <div class="space-y-6">
+      {eyebrow && (
+        <p class="inline-flex w-fit rounded-full bg-pine-100 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-pine-800">
+          {eyebrow}
+        </p>
+      )}
+      <h1 class="max-w-3xl text-3xl leading-tight text-slate-900 sm:text-4xl lg:text-5xl">{title}</h1>
+      <p class="max-w-2xl text-lg text-slate-800">{description}</p>
+      <div class="flex flex-wrap gap-3">
+        {primaryCta && (
+          <a
+            href={primaryCta.href}
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-pine-600 px-6 py-3 text-sm font-semibold text-white no-underline shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700 focus-visible:shadow-focus"
+          >
+            {primaryCta.label}
+          </a>
+        )}
+        {secondaryCta && (
+          <a
+            href={secondaryCta.href}
+            class="inline-flex items-center justify-center gap-2 rounded-full border border-pine-200 bg-white px-6 py-3 text-sm font-semibold text-pine-900 no-underline shadow-card transition hover:-translate-y-0.5 hover:border-pine-300 hover:text-pine-900 focus-visible:shadow-focus"
+          >
+            {secondaryCta.label}
+          </a>
+        )}
+      </div>
+      {highlights.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {highlights.map((item) => (
+            <span class="rounded-full border border-sand-200 bg-white px-3 py-1 text-xs font-semibold text-slate-800 shadow-card">
+              {item.value} — {item.label}
+            </span>
+          ))}
+        </div>
+      )}
+      <div class="mt-5 grid gap-4 sm:grid-cols-3">
+        {[
+          { title: 'Birlik hakkında', text: 'Kuruluş, görev alanları ve yönetim.' },
+          { title: 'Faaliyetler', text: 'Saha çalışmaları ve güncel duyurular.' },
+          { title: 'İletişim', text: '+90 530 933 36 01 · merbalbir@gmail.com' }
+        ].map((item) => (
+          <div class="rounded-2xl border border-sand-200 bg-white/90 p-4 shadow-card">
+            <div class="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-pine-50 text-pine-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 6h16M4 12h10m-10 6h16" />
+              </svg>
+            </div>
+            <p class="text-sm font-semibold text-slate-900">{item.title}</p>
+            <p class="text-sm text-slate-700 mt-1">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="relative">
+      <div class="rounded-[32px] border border-sand-200 bg-white shadow-soft p-6 space-y-5">
+        <div class="flex items-start gap-3">
+          <div class="mt-1 flex h-9 w-9 items-center justify-center rounded-xl bg-brand-100 text-brand-800">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 6v6l4 2" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">Çalışma başlıkları</p>
+            <p class="text-sm text-slate-700 mt-1">Kalite ve izlenebilirlik, arı sağlığı, eğitim içerikleri, alt birlik koordinasyonu.</p>
+          </div>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-xl border border-sand-200 bg-sand-50 p-3">
+            <p class="text-xs font-semibold text-slate-900">Bilgilendirici</p>
+            <p class="text-xs text-slate-700 mt-1">Resmî ve güncel duyurular tek yerde.</p>
+          </div>
+          <div class="rounded-xl border border-sand-200 bg-sand-50 p-3">
+            <p class="text-xs font-semibold text-slate-900">Şeffaf</p>
+            <p class="text-xs text-slate-700 mt-1">İletişim ve yönetim bilgileri açık.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
