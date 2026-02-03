@@ -48,7 +48,9 @@ order: 2
       </figcaption>
     </figure>
     <figure class="yk-card">
-      <div class="yk-photo yk-placeholder">İŞ</div>
+      <div class="yk-photo">
+        <img src="/assets/yonetim-kurulu/ismail-sar.jpg" alt="İsmail Şar" loading="lazy" decoding="async" />
+      </div>
       <figcaption>
         <p class="yk-name">İsmail Şar</p>
         <p class="yk-role">Başkan Yardımcısı</p>
