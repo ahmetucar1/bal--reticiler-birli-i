@@ -817,10 +817,12 @@ const subUnions = [
     transition: opacity 260ms ease, transform 260ms ease;
     overflow: hidden;
     background: #0f1724;
+    pointer-events: none;
   }
   .hero-slide.is-active {
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto;
   }
   .hero-link {
     display: block;

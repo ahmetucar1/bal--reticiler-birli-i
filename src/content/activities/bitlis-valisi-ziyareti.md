@@ -1,12 +1,10 @@
 ---
-title: "Bitlis ve Hizan birlik başkanlarımızla birlikte gerçekleştirdiğimiz Bitlis Valimiz Sayın Ahmet Karakaya ziyareti.(Devamını oku...)"
+title: "Bitlis ve Hizan birlik başkanlarımızla birlikte gerçekleştirdiğimiz Bitlis Valimiz Sayın Ahmet Karakaya ziyareti"
 summary: "Türkiye Bal Üreticileri Merkez Birliği olarak, Bitlis ve Hizan birlik başkanlarımızla birlikte bugün Bitlis Valimiz Sayın Ahmet Karakaya'yı ziyaret ederek Bitlis ilimizde yürüteceğimiz projeler ve arıcılık faaliyetlerinin geliştirilmesine yönelik konular hakkında istişarelerde bulunduk, ilimiz arıcılığına gösterdikleri ilgi ve yapıcı yaklaşımı için kendilerine teşekkür ederiz."
 date: "2026-02-18"
 tags: ["duyuru", "genel kurul", "ziyaret"]
 featured_image: "/assets/duyurular/1.jpeg"
 ---
-
-Türkiye Bal Üreticileri Merkez Birliği olarak, Bitlis ve Hizan birlik başkanlarımızla birlikte bu gün Bitlis Valimiz Sayın Ahmet Karakaya'yı ziyaret ederek, Bitlis ilimizde yürüteceğimiz projeler ve arıcılık faaliyetlerinin geliştirilmesine yönelik konular hakkında istişarelerde bulunduk, ilimiz arıcılığına gösterdikleri ilgi ve yapıcı yaklaşımı için kendilerine teşekkür ederiz.
 
 ## Duyuruya ait diğer fotoğraflar
 
