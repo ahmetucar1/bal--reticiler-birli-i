@@ -120,16 +120,20 @@ const subUnions = [
           <div class="hero-card">
             <div class="hero-slider" data-hero-slider style={`--count:${heroSlides.length};`}>
               {heroSlides.map((slide, idx) => (
-                <figure class="hero-slide" style={`--i:${idx}; --count:${heroSlides.length};`}>
-                  <a class="hero-link" href={slide.href}>
-                    <div class="hero-media">
-                      <img src={slide.src} alt={slide.alt} loading="lazy" decoding="async" />
-                      <figcaption class="hero-caption">
-                        <span class="hero-date">{slide.date}</span>
-                        <span class="hero-title">{slide.title}</span>
-                      </figcaption>
-                    </div>
-                  </a>
+                <figure
+                  class="hero-slide"
+                  style={`--i:${idx}; --count:${heroSlides.length};`}
+                  data-href={slide.href}
+                  role="link"
+                  tabindex="0"
+                >
+                  <div class="hero-media">
+                    <img src={slide.src} alt={slide.alt} loading="lazy" decoding="async" />
+                    <figcaption class="hero-caption">
+                      <span class="hero-date">{slide.date}</span>
+                      <span class="hero-title">{slide.title}</span>
+                    </figcaption>
+                  </div>
                 </figure>
               ))}
               <div class="hero-controls">
@@ -818,6 +822,7 @@ const subUnions = [
     overflow: hidden;
     background: #0f1724;
     pointer-events: none;
+    cursor: pointer;
   }
   .hero-slide.is-active {
     opacity: 1;
@@ -959,6 +964,19 @@ const subUnions = [
       slides.forEach((slide, i) => slide.classList.toggle('is-active', i === active));
       dots.forEach((dot, i) => dot.classList.toggle('is-active', i === active));
     };
+
+    slides.forEach((slide) => {
+      slide.addEventListener('click', () => {
+        const href = slide.dataset.href;
+        if (href) window.location.href = href;
+      });
+      slide.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        const href = slide.dataset.href;
+        if (href) window.location.href = href;
+      });
+    });
 
     const start = () => {
       timer = window.setInterval(() => setActive(active + 1), intervalMs);
