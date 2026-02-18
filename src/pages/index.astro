@@ -945,7 +945,7 @@ const subUnions = [
 </style>
 
 <script is:inline>
-  window.addEventListener('DOMContentLoaded', () => {
+  const initHeroSlider = () => {
     const slider = document.querySelector('[data-hero-slider]');
     if (!slider) return;
     const slides = Array.from(slider.querySelectorAll('.hero-slide'));
@@ -1010,5 +1010,11 @@ const subUnions = [
     } else {
       controls?.classList.add('is-hidden');
     }
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initHeroSlider);
+  } else {
+    initHeroSlider();
+  }
 </script>
