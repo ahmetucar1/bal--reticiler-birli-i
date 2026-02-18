@@ -6,6 +6,8 @@ tags: ["duyuru", "genel kurul", "ziyaret"]
 featured_image: "/assets/duyurular/1.jpeg"
 ---
 
+Türkiye Bal Üreticileri Merkez Birliği olarak, Bitlis ve Hizan birlik başkanlarımızla birlikte bugün Bitlis Valimiz Sayın Ahmet Karakaya'yı ziyaret ederek Bitlis ilimizde yürüteceğimiz projeler ve arıcılık faaliyetlerinin geliştirilmesine yönelik konular hakkında istişarelerde bulunduk, ilimiz arıcılığına gösterdikleri ilgi ve yapıcı yaklaşımı için kendilerine teşekkür ederiz. Ayrıca başkanlarımızla birlikte İl Tarım Müdürlüğümüzü ziyaret ederek, kurumsal yapıların güçlendirilmesi ve arıcılık faaliyetlerinin geliştirilmesine yönelik değerlendirmelerde bulunduk.
+
 ## Duyuruya ait diğer fotoğraflar
 
 <div class="gallery-grid">
@@ -18,7 +20,9 @@ featured_image: "/assets/duyurular/1.jpeg"
 
 <div class="lightbox" data-lightbox hidden>
   <button class="lightbox-close" type="button" aria-label="Kapat">×</button>
+  <button class="lightbox-nav lightbox-prev" type="button" aria-label="Önceki görsel">‹</button>
   <img class="lightbox-image" alt="Duyuru görseli" />
+  <button class="lightbox-nav lightbox-next" type="button" aria-label="Sonraki görsel">›</button>
 </div>
 
 <script>
@@ -26,13 +30,19 @@ featured_image: "/assets/duyurular/1.jpeg"
     const lightbox = document.querySelector('[data-lightbox]');
     const lightboxImage = lightbox?.querySelector('.lightbox-image');
     const closeBtn = lightbox?.querySelector('.lightbox-close');
-    const galleryImages = document.querySelectorAll('.gallery-grid img');
+    const prevBtn = lightbox?.querySelector('.lightbox-prev');
+    const nextBtn = lightbox?.querySelector('.lightbox-next');
+    const galleryImages = Array.from(document.querySelectorAll('.gallery-grid img'));
+    let activeIndex = 0;
 
-    if (!lightbox || !lightboxImage || !closeBtn) return;
+    if (!lightbox || !lightboxImage || !closeBtn || !prevBtn || !nextBtn) return;
 
-    const open = (src, alt) => {
-      lightboxImage.src = src;
-      lightboxImage.alt = alt || 'Duyuru görseli';
+    const open = (index) => {
+      const img = galleryImages[index];
+      if (!img) return;
+      activeIndex = index;
+      lightboxImage.src = img.src;
+      lightboxImage.alt = img.alt || 'Duyuru görseli';
       lightbox.hidden = false;
       document.body.style.overflow = 'hidden';
     };
@@ -43,17 +53,37 @@ featured_image: "/assets/duyurular/1.jpeg"
       document.body.style.overflow = '';
     };
 
-    galleryImages.forEach((img) => {
-      img.addEventListener('click', () => open(img.src, img.alt));
+    const showPrev = () => {
+      const nextIndex = (activeIndex - 1 + galleryImages.length) % galleryImages.length;
+      open(nextIndex);
+    };
+
+    const showNext = () => {
+      const nextIndex = (activeIndex + 1) % galleryImages.length;
+      open(nextIndex);
+    };
+
+    galleryImages.forEach((img, index) => {
+      img.addEventListener('click', () => open(index));
     });
 
     closeBtn.addEventListener('click', close);
+    prevBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      showPrev();
+    });
+    nextBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      showNext();
+    });
     lightbox.addEventListener('click', (event) => {
       if (event.target === lightbox) close();
     });
 
     document.addEventListener('keydown', (event) => {
       if (!lightbox.hidden && event.key === 'Escape') close();
+      if (!lightbox.hidden && event.key === 'ArrowLeft') showPrev();
+      if (!lightbox.hidden && event.key === 'ArrowRight') showNext();
     });
   });
 </script>
@@ -107,5 +137,25 @@ featured_image: "/assets/duyurular/1.jpeg"
     color: #0f172a;
     font-size: 1.4rem;
     cursor: pointer;
+  }
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #0f172a;
+    font-size: 1.6rem;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
+  }
+  .lightbox-prev {
+    left: 18px;
+  }
+  .lightbox-next {
+    right: 18px;
   }
 </style>
