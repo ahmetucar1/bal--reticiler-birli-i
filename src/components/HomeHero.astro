@@ -1,4 +1,8 @@
 ---
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 interface LinkItem {
   label: string;
   href: string;
@@ -14,6 +18,52 @@ interface Props {
 }
 
 const { title, description, primaryCta, secondaryCta, highlights, eyebrow } = Astro.props as Props;
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const duyuruDir = path.resolve(__dirname, "../../public/assets/duyurular");
+const allDuyurular = fs.existsSync(duyuruDir) ? fs.readdirSync(duyuruDir) : [];
+const duyuruImages = allDuyurular.filter((file) => /\.(jpe?g|png|webp)$/i.test(file));
+
+const monthNames = [
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
+];
+
+const parseDateLabel = (file: string) => {
+  const match = file.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return "";
+  const [, year, month, day] = match;
+  const monthIndex = Number(month) - 1;
+  if (monthIndex < 0 || monthIndex > 11) return `${day}.${month}.${year}`;
+  return `${Number(day)} ${monthNames[monthIndex]} ${year}`;
+};
+
+const duyuruOverrides: Record<string, { title?: string; date?: string }> = {
+  // "dosya-adi.jpg": { title: "Başlık", date: "18 Şubat 2026" },
+};
+
+const duyuruSlides = duyuruImages
+  .sort((a, b) => b.localeCompare(a))
+  .slice(0, 6)
+  .map((file, index) => {
+    const override = duyuruOverrides[file] || {};
+    const fallbackDate = parseDateLabel(file);
+    return {
+      src: `/assets/duyurular/${encodeURI(file)}`,
+      title: override.title ?? `Genel Kurul Ziyareti ${index + 1}`,
+      date: override.date ?? (fallbackDate || "2026"),
+    };
+  });
 ---
 
 <section class="relative overflow-hidden bg-gradient-to-br from-[#f8f6f2] via-[#f1f5f2] to-[#e9f1eb]">
@@ -46,18 +96,200 @@ const { title, description, primaryCta, secondaryCta, highlights, eyebrow } = As
       </div>
     </div>
 
-    <div class="space-y-4 rounded-3xl border border-sand-200 bg-white/85 p-6 shadow-soft backdrop-blur">
-      <p class="text-sm font-semibold text-slate-900">Öne çıkan başlıklar</p>
-      <ul class="space-y-3 text-sm text-slate-800">
-        {highlights.map((item) => (
-          <li class="flex items-center justify-between gap-3">
-            <a class="flex-1 underline-offset-4 hover:text-pine-700" href={item.href}>{item.label}</a>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="m9 5 7 7-7 7" />
-            </svg>
-          </li>
-        ))}
-      </ul>
+    <div class="announce-panel">
+      <p class="announce-title">Bu haftadan duyurular</p>
+      {duyuruSlides.length ? (
+        <div class="announce-slider" data-announce-slider style={`--announce-count:${duyuruSlides.length};`}>
+          <div class="announce-frame">
+            {duyuruSlides.map((slide, index) => (
+              <figure class="announce-slide" data-index={index}>
+                <div class="announce-media">
+                  <img src={slide.src} alt={slide.title} loading="lazy" decoding="async" />
+                </div>
+                <figcaption class="announce-caption">
+                  <span class="announce-date">{slide.date}</span>
+                  <h3>{slide.title}</h3>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <div class="announce-controls">
+            <button class="announce-nav announce-prev" type="button" aria-label="Önceki duyuru">
+              <span aria-hidden="true">‹</span>
+            </button>
+            <div class="announce-dots">
+              {duyuruSlides.map((_, index) => (
+                <button class="announce-dot" type="button" aria-label={`Duyuru ${index + 1}`} data-index={index} />
+              ))}
+            </div>
+            <button class="announce-nav announce-next" type="button" aria-label="Sonraki duyuru">
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <ul class="space-y-3 text-sm text-slate-800">
+          {highlights.map((item) => (
+            <li class="flex items-center justify-between gap-3">
+              <a class="flex-1 underline-offset-4 hover:text-pine-700" href={item.href}>{item.label}</a>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="m9 5 7 7-7 7" />
+              </svg>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   </div>
 </section>
+
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const slider = document.querySelector("[data-announce-slider]");
+    if (!slider) return;
+    const slides = Array.from(slider.querySelectorAll(".announce-slide"));
+    if (!slides.length) return;
+    const dots = Array.from(slider.querySelectorAll(".announce-dot"));
+    const prev = slider.querySelector(".announce-prev");
+    const next = slider.querySelector(".announce-next");
+    let active = 0;
+    let timer;
+    const intervalMs = 5000;
+
+    const setActive = (idx) => {
+      active = (idx + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle("is-active", i === active));
+      dots.forEach((dot, i) => dot.classList.toggle("is-active", i === active));
+    };
+
+    const resetTimer = () => {
+      clearInterval(timer);
+      timer = setInterval(() => setActive(active + 1), intervalMs);
+    };
+
+    prev?.addEventListener("click", () => {
+      setActive(active - 1);
+      resetTimer();
+    });
+    next?.addEventListener("click", () => {
+      setActive(active + 1);
+      resetTimer();
+    });
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => {
+        setActive(index);
+        resetTimer();
+      });
+    });
+
+    setActive(0);
+    resetTimer();
+  });
+</script>
+
+<style>
+  .announce-panel {
+    display: grid;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 22px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+    backdrop-filter: blur(10px);
+  }
+  .announce-title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .announce-slider {
+    display: grid;
+    gap: 12px;
+  }
+  .announce-frame {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0f172a;
+    min-height: 280px;
+  }
+  .announce-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 260ms ease, transform 260ms ease;
+    display: grid;
+    grid-template-rows: 1fr auto;
+  }
+  .announce-slide.is-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .announce-media {
+    width: 100%;
+    height: 100%;
+  }
+  .announce-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .announce-caption {
+    display: grid;
+    gap: 4px;
+    padding: 14px 16px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.8) 100%);
+    color: #f8fafc;
+  }
+  .announce-caption h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .announce-date {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+  .announce-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .announce-nav {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: #fff;
+    color: #0f172a;
+    font-size: 1.2rem;
+    display: grid;
+    place-items: center;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+  .announce-nav:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+  }
+  .announce-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .announce-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(15, 23, 42, 0.18);
+    cursor: pointer;
+  }
+  .announce-dot.is-active {
+    background: #0d7a4c;
+  }
+</style>

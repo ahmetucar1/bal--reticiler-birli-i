@@ -4,6 +4,9 @@ import SectionHeading from '../components/SectionHeading.astro';
 import ActivityCard from '../components/ActivityCard.astro';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '../config/site';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const activities = (await getCollection('activities', ({ data }) => !data.draft)).sort((a, b) => {
   const aTime = a.data.date ? Date.parse(a.data.date) : 0;
@@ -19,7 +22,7 @@ const highlights = [
   { label: 'Alt birlikler', href: '/altbirlikler' }
 ];
 
-const heroSlides = [
+const fallbackSlides = [
   { src: '/assets/hero/1.png', alt: 'Saha ziyareti' },
   { src: '/assets/hero/8.png', alt: 'Arı kovanları ve üretim alanı' },
   { src: '/assets/hero/10.png', alt: 'Kovan kontrolü' },
@@ -31,6 +34,29 @@ const heroSlides = [
   { src: '/assets/hero/23.png', alt: 'Depolama ve lojistik' },
   { src: '/assets/hero/28.png', alt: 'Arazi inceleme' }
 ];
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const duyuruDir = path.resolve(__dirname, '../../public/assets/duyurular');
+const duyuruHeroPath = path.resolve(duyuruDir, '1.jpeg');
+
+const primaryAnnouncement = {
+  src: '/assets/duyurular/1.jpeg',
+  href: '/faaliyetler/bitlis-valisi-ziyareti/',
+  title:
+    'Bitlis ve Hizan birlik başkanlarımızla birlikte gerçekleştirdiğimiz Bitlis Valimiz Sayın Ahmet Karakaya ziyareti.(Devamını oku...)',
+  date: '18 Şubat 2026',
+  alt: 'Bitlis Valisi Ahmet Karakaya ziyareti'
+};
+
+const heroSlides = fs.existsSync(duyuruHeroPath)
+  ? [primaryAnnouncement]
+  : fallbackSlides.map((slide) => ({
+      ...slide,
+      href: '/faaliyetler',
+      title: slide.alt,
+      date: '2026',
+      alt: slide.alt
+    }));
 
 const subUnions = [
   { title: 'İl birlikleri', note: 'Doğrulanmış iletişim bilgileri güncelleniyor.' },
@@ -68,7 +94,7 @@ const subUnions = [
               class="inline-flex items-center justify-center gap-2 rounded-full bg-pine-600 px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700 focus-visible:shadow-focus"
               style="color: #fff;"
             >
-              Faaliyetler
+              Duyurular
             </a>
             <a
               href="/hakkimizda"
@@ -92,17 +118,29 @@ const subUnions = [
 
         <div class="lg:col-span-7">
           <div class="hero-card">
-            <div class="hero-slider">
+            <div class="hero-slider" data-hero-slider style={`--count:${heroSlides.length};`}>
               {heroSlides.map((slide, idx) => (
                 <figure class="hero-slide" style={`--i:${idx}; --count:${heroSlides.length};`}>
-                  <div class="hero-media">
-                    <img src={slide.src} alt={slide.alt} />
-                  </div>
-                  <figcaption class="hero-caption">
-                    <span>{slide.alt}</span>
-                  </figcaption>
+                  <a class="hero-link" href={slide.href}>
+                    <div class="hero-media">
+                      <img src={slide.src} alt={slide.alt} loading="lazy" decoding="async" />
+                      <figcaption class="hero-caption">
+                        <span class="hero-date">{slide.date}</span>
+                        <span class="hero-title">{slide.title}</span>
+                      </figcaption>
+                    </div>
+                  </a>
                 </figure>
               ))}
+              <div class="hero-controls">
+                <button class="hero-nav hero-nav-prev" type="button" aria-label="Önceki duyuru">‹</button>
+                <div class="hero-dots">
+                  {heroSlides.map((_, idx) => (
+                    <button class="hero-dot" type="button" aria-label={`Duyuru ${idx + 1}`} />
+                  ))}
+                </div>
+                <button class="hero-nav hero-nav-next" type="button" aria-label="Sonraki duyuru">›</button>
+              </div>
             </div>
           </div>
         </div>
@@ -158,16 +196,16 @@ const subUnions = [
     <div class="activities-pane space-y-6">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading
-          eyebrow="Faaliyetler"
-          title="Öne çıkan çalışmalar"
-          description="Saha notları ve ziyaretlerden seçilen güncel faaliyetler."
+          eyebrow="Duyurular"
+          title="Öne çıkan duyurular"
+          description="Genel kurul ziyaretlerinden ve saha temaslarından güncel duyurular."
         />
         <a
           href="/faaliyetler"
           class="inline-flex items-center justify-center gap-2 rounded-full border border-pine-600 bg-pine-600 px-4 py-2 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:border-pine-700 hover:bg-pine-700 focus-visible:shadow-focus"
           style="color: #fff;"
         >
-          Tüm faaliyetler
+          Tüm duyurular
         </a>
       </div>
 
@@ -185,7 +223,7 @@ const subUnions = [
       </div>
       ) : (
         <div class="rounded-2xl border border-dashed border-sand-200 bg-sand-50 px-4 py-6 text-sm text-slate-700">
-          Faaliyet içerikleri hazırlanıyor.
+          Duyuru içerikleri hazırlanıyor.
         </div>
       )}
     </div>
@@ -743,10 +781,7 @@ const subUnions = [
       radial-gradient(140% 140% at 85% 0%, rgba(255, 255, 255, 0.12), transparent 50%),
       #0a1424;
     isolation: isolate;
-    padding: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0.6rem;
   }
 
   @supports (aspect-ratio: 16 / 9) {
@@ -775,22 +810,30 @@ const subUnions = [
   .hero-slide {
     position: absolute;
     inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 0.75rem;
+    width: 100%;
+    height: 100%;
     opacity: 0;
-    animation: hero-fade calc(var(--count, 1) * 5s) linear infinite;
-    animation-delay: calc(var(--i, 0) * 5s);
+    transform: translateY(6px);
+    transition: opacity 260ms ease, transform 260ms ease;
     overflow: hidden;
     background: #0f1724;
   }
+  .hero-slide.is-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hero-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
 
   .hero-media {
-    flex: 1 1 auto;
+    position: relative;
     width: 100%;
-    display: grid;
-    place-items: center;
+    height: 100%;
     background: #0a1424;
     border-radius: 0.9rem;
     overflow: hidden;
@@ -799,24 +842,76 @@ const subUnions = [
   .hero-media img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
     display: block;
   }
 
   .hero-caption {
-    position: relative;
-    margin: 0 0 0.35rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.65rem 0.85rem;
-    border-radius: 0.9rem;
-    background: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.75rem 1rem 0.9rem;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.82) 100%);
     color: white;
     font-size: 0.9rem;
     line-height: 1.3;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .hero-date {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .hero-title {
+    font-weight: 700;
+  }
+  .hero-controls {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 2;
+  }
+  .hero-nav {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    transition: transform 140ms ease, box-shadow 140ms ease;
+  }
+  .hero-nav:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.16);
+  }
+  .hero-dots {
+    display: flex;
+    gap: 6px;
+    padding: 0 4px;
+  }
+  .hero-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+  }
+  .hero-dot.is-active {
+    background: #0d7a4c;
+  }
+  .hero-controls.is-hidden {
+    display: none;
   }
 
   @media (max-width: 768px) {
@@ -839,16 +934,7 @@ const subUnions = [
     }
   }
 
-  @keyframes hero-fade {
-    0%,
-    8% {
-      opacity: 1;
-    }
-    10%,
-    100% {
-      opacity: 0;
-    }
-  }
+  
 </style>
 
 <script is:inline>
@@ -859,6 +945,7 @@ const subUnions = [
     const dots = Array.from(slider.querySelectorAll('.hero-dot'));
     const prev = slider.querySelector('.hero-nav-prev');
     const next = slider.querySelector('.hero-nav-next');
+    const controls = slider.querySelector('.hero-controls');
     const intervalMs = 5000;
     let active = 0;
     let timer;
@@ -898,6 +985,10 @@ const subUnions = [
     );
 
     setActive(0);
-    if (slides.length > 1) start();
+    if (slides.length > 1) {
+      start();
+    } else {
+      controls?.classList.add('is-hidden');
+    }
   });
 </script>

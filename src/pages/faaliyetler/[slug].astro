@@ -47,7 +47,7 @@ const structuredData = [
   <section class="page-shell section-gap space-y-6">
     <div class="space-y-2">
       <p class="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-        Faaliyet {activity.data.date ? `• ${formatDate(activity.data.date)}` : ''}
+        Duyuru {activity.data.date ? `• ${formatDate(activity.data.date)}` : ''}
       </p>
       <h1 class="text-3xl leading-tight text-slate-900">{activity.data.title}</h1>
       <p class="text-base text-slate-700">{activity.data.summary}</p>
@@ -74,7 +74,7 @@ const structuredData = [
   {related.length > 0 && (
     <section class="section-gap bg-white">
       <div class="page-shell space-y-4">
-        <h2 class="text-xl font-semibold text-slate-900">İlgili faaliyetler</h2>
+        <h2 class="text-xl font-semibold text-slate-900">İlgili duyurular</h2>
         <div class="grid gap-6 md:grid-cols-3">
           {related.map((item) => (
             <ActivityCard
