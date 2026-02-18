@@ -5,3 +5,15 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
+
+[[redirects]]
+  from = "/faaliyetler"
+  to = "/duyurular"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/faaliyetler/*"
+  to = "/duyurular/:splat"
+  status = 301
+  force = true

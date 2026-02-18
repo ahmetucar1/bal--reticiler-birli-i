@@ -1,21 +1,27 @@
 ---
-title: "Bitlis ve Hizan birlik başkanlarımızla birlikte gerçekleştirdiğimiz Bitlis Valimiz Sayın Ahmet Karakaya ziyareti"
-summary: "Türkiye Bal Üreticileri Merkez Birliği olarak, Bitlis ve Hizan birlik başkanlarımızla birlikte bugün Bitlis Valimiz Sayın Ahmet Karakaya'yı ziyaret ederek Bitlis ilimizde yürüteceğimiz projeler ve arıcılık faaliyetlerinin geliştirilmesine yönelik konular hakkında istişarelerde bulunduk, ilimiz arıcılığına gösterdikleri ilgi ve yapıcı yaklaşımı için kendilerine teşekkür ederiz. Ayrıca başkanlarımızla birlikte İl Tarım Müdürlüğümüzü ziyaret ederek, kurumsal yapıların güçlendirilmesi ve arıcılık faaliyetlerinin geliştirilmesine yönelik değerlendirmelerde bulunduk."
-date: "2026-02-18"
-tags: ["duyuru", "genel kurul", "ziyaret"]
-featured_image: "/assets/duyurular/1.jpeg"
+title: "Şanlıurfa Bal Üreticiler Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti."
+summary: "Şanlıurfa Bal Üreticiler Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti."
+tags: ["duyuru", "genel kurul"]
+featured_image: "/assets/duyurular/0.jpeg"
 ---
-
-Türkiye Bal Üreticileri Merkez Birliği olarak, Bitlis ve Hizan birlik başkanlarımızla birlikte bugün Bitlis Valimiz Sayın Ahmet Karakaya'yı ziyaret ederek Bitlis ilimizde yürüteceğimiz projeler ve arıcılık faaliyetlerinin geliştirilmesine yönelik konular hakkında istişarelerde bulunduk, ilimiz arıcılığına gösterdikleri ilgi ve yapıcı yaklaşımı için kendilerine teşekkür ederiz. Ayrıca başkanlarımızla birlikte İl Tarım Müdürlüğümüzü ziyaret ederek, kurumsal yapıların güçlendirilmesi ve arıcılık faaliyetlerinin geliştirilmesine yönelik değerlendirmelerde bulunduk.
 
 ## Duyuruya ait diğer fotoğraflar
 
 <div class="gallery-grid">
-  <img src="/assets/duyurular/1.1.jpeg" alt="Bitlis Valiliği ziyareti 1" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.2.jpeg" alt="Bitlis Valiliği ziyareti 2" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.3.jpeg" alt="Bitlis Valiliği ziyareti 3" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.4.jpeg" alt="Bitlis Valiliği ziyareti 4" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.5.jpeg" alt="Bitlis Valiliği ziyareti 5" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.1.jpeg" alt="Şanlıurfa genel kurul 1" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.2.jpeg" alt="Şanlıurfa genel kurul 2" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.3.jpeg" alt="Şanlıurfa genel kurul 3" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.4.jpeg" alt="Şanlıurfa genel kurul 4" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.5.jpeg" alt="Şanlıurfa genel kurul 5" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.6.jpeg" alt="Şanlıurfa genel kurul 6" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.7.jpeg" alt="Şanlıurfa genel kurul 7" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.8.jpeg" alt="Şanlıurfa genel kurul 8" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.9.jpeg" alt="Şanlıurfa genel kurul 9" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.10.jpeg" alt="Şanlıurfa genel kurul 10" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.11.jpeg" alt="Şanlıurfa genel kurul 11" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.12.jpeg" alt="Şanlıurfa genel kurul 12" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.13.jpeg" alt="Şanlıurfa genel kurul 13" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/0.14.jpeg" alt="Şanlıurfa genel kurul 14" loading="lazy" decoding="async" />
 </div>
 
 <div class="lightbox" data-lightbox hidden>

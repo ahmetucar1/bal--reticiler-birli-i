@@ -18,7 +18,7 @@ export const siteConfig = {
     { title: 'Ana Sayfa', href: '/' },
     { title: 'Hakkımızda', href: '/hakkimizda' },
     { title: 'Yönetim Kurulu', href: '/yonetim-kurulu' },
-    { title: 'Duyurular', href: '/faaliyetler' },
+    { title: 'Duyurular', href: '/duyurular' },
     { title: 'Alt Birlikler', href: '/altbirlikler' },
     { title: 'İletişim', href: '/iletisim' }
   ] satisfies NavItem[],

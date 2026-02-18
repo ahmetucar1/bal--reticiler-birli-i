@@ -7,9 +7,9 @@ export async function GET() {
 
   const urls = new Set([
     '',
-    'faaliyetler/',
+    'duyurular/',
     ...pages.map((page) => `${page.slug}/`),
-    ...activities.map((item) => `faaliyetler/${item.slug}/`)
+    ...activities.map((item) => `duyurular/${item.slug}/`)
   ]);
 
   const now = new Date().toISOString();

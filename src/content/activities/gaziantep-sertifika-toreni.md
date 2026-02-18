@@ -1,21 +1,25 @@
 ---
-title: "Bitlis ve Hizan birlik başkanlarımızla birlikte gerçekleştirdiğimiz Bitlis Valimiz Sayın Ahmet Karakaya ziyareti"
-summary: "Türkiye Bal Üreticileri Merkez Birliği olarak, Bitlis ve Hizan birlik başkanlarımızla birlikte bugün Bitlis Valimiz Sayın Ahmet Karakaya'yı ziyaret ederek Bitlis ilimizde yürüteceğimiz projeler ve arıcılık faaliyetlerinin geliştirilmesine yönelik konular hakkında istişarelerde bulunduk, ilimiz arıcılığına gösterdikleri ilgi ve yapıcı yaklaşımı için kendilerine teşekkür ederiz. Ayrıca başkanlarımızla birlikte İl Tarım Müdürlüğümüzü ziyaret ederek, kurumsal yapıların güçlendirilmesi ve arıcılık faaliyetlerinin geliştirilmesine yönelik değerlendirmelerde bulunduk."
-date: "2026-02-18"
-tags: ["duyuru", "genel kurul", "ziyaret"]
-featured_image: "/assets/duyurular/1.jpeg"
+title: "Bal üreticileri birliklerimiz her geçen gün daha kurumsal bir yapıya kavuşuyor ve büyümeye devam ediyor."
+summary: "Bal üreticileri birliklerimiz her geçen gün daha kurumsal bir yapıya kavuşuyor ve büyümeye devam ediyor. Gaziantep Bal Üreticileri Birliği Başkanımız Mehmet Uçar’ın öncülüğünde, bakanlık tarafından belgelendirilen eğitim programı kapsamında; Merkez Birliğimiz Yönetim Kurulu Başkan Yardımcımız Mehmet Ali Kutlu hocamızın eğitmen olarak yer aldığı proje doğrultusunda belgelendirme töreni gerçekleştirilmiş ve başarılı arıcılarımıza bakanlık onaylı ana arı sertifikaları takdim edilmiştir. Emeği geçen başta Gaziantep Birliğimiz olmak üzere, kıymetli hocamıza ve tüm paydaşlara teşekkür eder, sertifika alan arıcılarımızı tebrik ederiz"
+tags: ["duyuru", "eğitim", "sertifika"]
+featured_image: "/assets/duyurular/7.jpeg"
 ---
 
-Türkiye Bal Üreticileri Merkez Birliği olarak, Bitlis ve Hizan birlik başkanlarımızla birlikte bugün Bitlis Valimiz Sayın Ahmet Karakaya'yı ziyaret ederek Bitlis ilimizde yürüteceğimiz projeler ve arıcılık faaliyetlerinin geliştirilmesine yönelik konular hakkında istişarelerde bulunduk, ilimiz arıcılığına gösterdikleri ilgi ve yapıcı yaklaşımı için kendilerine teşekkür ederiz. Ayrıca başkanlarımızla birlikte İl Tarım Müdürlüğümüzü ziyaret ederek, kurumsal yapıların güçlendirilmesi ve arıcılık faaliyetlerinin geliştirilmesine yönelik değerlendirmelerde bulunduk.
+Bal üreticileri birliklerimiz her geçen gün daha kurumsal bir yapıya kavuşuyor ve büyümeye devam ediyor.
+
+Gaziantep Bal Üreticileri Birliği Başkanımız Mehmet Uçar’ın öncülüğünde, bakanlık tarafından belgelendirilen eğitim programı kapsamında; Merkez Birliğimiz Yönetim Kurulu Başkan Yardımcımız Mehmet Ali Kutlu hocamızın eğitmen olarak yer aldığı proje doğrultusunda belgelendirme töreni gerçekleştirilmiş ve başarılı arıcılarımıza bakanlık onaylı ana arı sertifikaları takdim edilmiştir.
+
+Emeği geçen başta Gaziantep Birliğimiz olmak üzere, kıymetli hocamıza ve tüm paydaşlara teşekkür eder, sertifika alan arıcılarımızı tebrik ederiz.
 
 ## Duyuruya ait diğer fotoğraflar
 
 <div class="gallery-grid">
-  <img src="/assets/duyurular/1.1.jpeg" alt="Bitlis Valiliği ziyareti 1" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.2.jpeg" alt="Bitlis Valiliği ziyareti 2" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.3.jpeg" alt="Bitlis Valiliği ziyareti 3" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.4.jpeg" alt="Bitlis Valiliği ziyareti 4" loading="lazy" decoding="async" />
-  <img src="/assets/duyurular/1.5.jpeg" alt="Bitlis Valiliği ziyareti 5" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/7.1.jpeg" alt="Gaziantep sertifika töreni 1" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/7.2.jpeg" alt="Gaziantep sertifika töreni 2" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/7.3.jpeg" alt="Gaziantep sertifika töreni 3" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/7.4.jpeg" alt="Gaziantep sertifika töreni 4" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/7.5.jpeg" alt="Gaziantep sertifika töreni 5" loading="lazy" decoding="async" />
+  <img src="/assets/duyurular/7.6.jpeg" alt="Gaziantep sertifika töreni 6" loading="lazy" decoding="async" />
 </div>
 
 <div class="lightbox" data-lightbox hidden>
