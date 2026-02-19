@@ -52,6 +52,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     const formatDate = (value) => {
       if (!value) return "";
+      if (typeof value === "string") {
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return value;
+        return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(parsed);
+      }
       const date = value instanceof Date ? value : value.toDate?.() || new Date(value);
       if (Number.isNaN(date.getTime())) return "";
       return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
@@ -142,7 +147,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         }
 
         titleEl.textContent = data.title || "";
-        dateEl.textContent = data.publishedAt ? `Duyuru • ${formatDate(data.publishedAt)}` : "Duyuru";
+        const dateLabel = data.eventDate || data.publishedAt;
+        dateEl.textContent = dateLabel ? `Duyuru • ${formatDate(dateLabel)}` : "Duyuru";
 
         bodyEl.innerHTML = "";
         const paragraphs = (data.body || "").split("\n").filter(Boolean);

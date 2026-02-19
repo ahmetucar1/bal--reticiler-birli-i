@@ -1052,6 +1052,11 @@ const subUnions = [
 
   const formatDate = (value) => {
     if (!value) return "2026";
+    if (typeof value === "string") {
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return value;
+      return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(parsed);
+    }
     const date = value instanceof Date ? value : value.toDate?.() || new Date(value);
     if (Number.isNaN(date.getTime())) return "2026";
     return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
@@ -1178,14 +1183,14 @@ const subUnions = [
 
   const loadAnnouncements = async () => {
     try {
-      const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(10));
+      const q = query(collection(db, "announcements"), orderBy("order", "asc"), limit(20));
       const snapshot = await getDocs(q);
       const items = snapshot.docs
         .map((doc) => {
           const data = doc.data() || {};
           const coverUrl = data.coverUrl || data.images?.[0]?.url;
           if (!data.title || !coverUrl || !data.publishedAt) return null;
-          const dateLabel = formatDate(data.publishedAt || data.createdAt);
+          const dateLabel = formatDate(data.eventDate || data.publishedAt || data.createdAt);
           return {
             id: doc.id,
             title: data.title,

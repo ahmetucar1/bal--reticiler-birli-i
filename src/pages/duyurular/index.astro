@@ -167,6 +167,11 @@ const duyuruItems = [
 
     const formatDate = (value) => {
       if (!value) return "2026";
+      if (typeof value === "string") {
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return value;
+        return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(parsed);
+      }
       const date = value instanceof Date ? value : value.toDate?.() || new Date(value);
       if (Number.isNaN(date.getTime())) return "2026";
       return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
@@ -224,7 +229,7 @@ const duyuruItems = [
 
     const loadDuyurular = async () => {
       try {
-        const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "announcements"), orderBy("order", "asc"));
         const snapshot = await getDocs(q);
         const items = snapshot.docs
           .map((doc) => {
@@ -235,7 +240,7 @@ const duyuruItems = [
               id: doc.id,
               title: data.title,
               coverUrl,
-              dateLabel: formatDate(data.publishedAt || data.createdAt)
+              dateLabel: formatDate(data.eventDate || data.publishedAt || data.createdAt)
             };
           })
           .filter(Boolean);
