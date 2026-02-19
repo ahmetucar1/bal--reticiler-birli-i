@@ -25,15 +25,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <h2 class="text-xl font-semibold text-slate-900">Duyuru Yayınla</h2>
             <p class="text-sm text-slate-600">Başlık, metin ve görselleri girin.</p>
           </div>
-          <div class="flex items-center gap-3">
-            <button
-              id="seed"
-              class="inline-flex items-center justify-center rounded-full border border-sand-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-sand-50"
-            >
-              Eski duyuruları geri getir
-            </button>
-            <button id="logout" class="text-sm font-semibold text-slate-500 hover:text-slate-800">Çıkış</button>
-          </div>
+          <button id="logout" class="text-sm font-semibold text-slate-500 hover:text-slate-800">Çıkış</button>
         </div>
 
         <form id="announcement-form" class="mt-6 space-y-5">
@@ -124,7 +116,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, serverTimestamp, doc, getDocs, query, orderBy, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, serverTimestamp, doc, getDocs, deleteDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
     const firebaseConfig = {
@@ -148,7 +140,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const adminPanel = document.getElementById("admin-panel");
     const loginBtn = document.getElementById("google-login");
     const logoutBtn = document.getElementById("logout");
-    const seedBtn = document.getElementById("seed");
     const resetBtn = document.getElementById("reset");
     const authError = document.getElementById("auth-error");
     const listEl = document.getElementById("announcement-list");
@@ -296,9 +287,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const snapshot = await getDocs(collection(db, "announcements"));
       announcements = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
       renderList();
-      if (announcements.length <= 1) {
-        statusEl.textContent = "Eski duyuruları geri getirmek için butona basabilirsiniz.";
-      }
     };
 
     const enterEditMode = (item) => {
@@ -461,12 +449,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       resetForm();
     });
 
-    seedBtn?.addEventListener("click", async () => {
-      statusEl.textContent = "Eski duyurular ekleniyor...";
-      try {
-        await Promise.all(
-          seedAnnouncements.map((item) => {
-            return setDoc(doc(db, "announcements", item.id), {
+    const ensureSeeded = async () => {
+      const probe = await getDoc(doc(db, "announcements", "sanliurfa-genel-kurul"));
+      if (probe.exists()) return;
+
+      await Promise.all(
+        seedAnnouncements.map((item) => {
+          return setDoc(
+            doc(db, "announcements", item.id),
+            {
               title: item.title,
               body: item.body,
               coverUrl: item.coverUrl,
@@ -475,15 +466,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               eventDate: item.eventDate || "",
               publishedAt: serverTimestamp(),
               createdAt: serverTimestamp()
-            }, { merge: true });
-          })
-        );
-        statusEl.textContent = "Eski duyurular geri getirildi.";
-        await loadAnnouncements();
-      } catch (error) {
-        statusEl.textContent = "Eski duyurular eklenemedi.";
-      }
-    });
+            },
+            { merge: true }
+          );
+        })
+      );
+    };
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -498,7 +486,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
       authCard?.classList.add("hidden");
       adminPanel?.classList.remove("hidden");
-      loadAnnouncements();
+      await ensureSeeded();
+      await loadAnnouncements();
     });
 
     imagesInput?.addEventListener("change", (event) => {
