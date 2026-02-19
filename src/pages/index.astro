@@ -1042,7 +1042,9 @@ const subUnions = [
     const slides = Array.from(slider.querySelectorAll('.hero-slide')).filter(
       (slide) => !slide.hidden && slide.style.display !== 'none'
     );
-    const dots = Array.from(root.querySelectorAll('.hero-dot'));
+    const dots = Array.from(root.querySelectorAll('.hero-dot')).filter(
+      (dot) => !dot.hidden && dot.style.display !== 'none'
+    );
     const controls = root.querySelector('.hero-controls');
     const prev = controls?.querySelector('.hero-nav-prev');
     const next = controls?.querySelector('.hero-nav-next');
@@ -1167,9 +1169,24 @@ const subUnions = [
       if (titleEl) titleEl.textContent = item.title || '';
     });
 
-    dotsWrap.innerHTML = items
-      .map((_, idx) => `<button class="hero-dot" type="button" aria-label="Duyuru ${idx + 1}"></button>`)
-      .join('');
+    const existingDots = Array.from(dotsWrap.querySelectorAll('.hero-dot'));
+    if (existingDots.length < items.length) {
+      for (let i = existingDots.length; i < items.length; i += 1) {
+        const dot = document.createElement('button');
+        dot.className = 'hero-dot';
+        dot.type = 'button';
+        dot.setAttribute('aria-label', `Duyuru ${i + 1}`);
+        dotsWrap.appendChild(dot);
+      }
+    }
+    const allDots = Array.from(dotsWrap.querySelectorAll('.hero-dot'));
+    allDots.forEach((dot, idx) => {
+      dot.hidden = idx >= items.length;
+      dot.classList.remove('is-active');
+      if (!dot.hidden) {
+        dot.setAttribute('aria-label', `Duyuru ${idx + 1}`);
+      }
+    });
   };
 
   const renderFeatured = (items) => {
