@@ -4,13 +4,15 @@ export type NavItem = {
 };
 
 export const siteConfig = {
-  name: 'Türkiye Bal Üreticileri Merkez Birliği',
+  name: 'TABÜB | Türkiye Bal Üreticileri Merkez Birliği',
   brandName: 'Türkiye Bal Üreticileri Merkez Birliği',
   shortName: 'TABÜB',
   url: 'https://www.balmerkezbirligi.org',
   locale: 'tr-TR',
   description:
-    'Arıcılık ve arı ürünlerinde kaliteyi, sürdürülebilirliği ve üretici refahını destekleyen Türkiye Bal Üreticileri Merkez Birliği.',
+    'TABÜB (Türkiye Bal Üreticileri Merkez Birliği), arıcılık ve arı ürünlerinde kaliteyi, sürdürülebilirliği ve üretici refahını destekleyen resmî kuruluştur.',
+  keywords:
+    'TABÜB, tabüb, Türkiye Bal Üreticileri Merkez Birliği, bal üreticileri birliği, arıcılık, arı ürünleri, bal üretimi',
   slogan: '',
   ogImage: '/assets/brand/og-default.png',
   twitterHandle: '@bal_birligi',

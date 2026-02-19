@@ -69,9 +69,24 @@ export const organizationJsonLd = () => {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: siteConfig.name,
+    alternateName: siteConfig.shortName,
     url: siteConfig.url,
     logo: new URL(siteConfig.ogImage, siteConfig.url).toString(),
+    description: siteConfig.description,
+    brand: {
+      '@type': 'Brand',
+      name: siteConfig.shortName
+    },
     contactPoint,
     sameAs: sameAs.length ? sameAs : undefined
   };
 };
+
+export const websiteJsonLd = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteConfig.name,
+  alternateName: siteConfig.shortName,
+  url: siteConfig.url,
+  inLanguage: siteConfig.locale
+});

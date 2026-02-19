@@ -2,7 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { siteConfig } from '../config/site';
-import { buildMeta, organizationJsonLd, type MetaOptions } from '../lib/seo';
+import { buildMeta, organizationJsonLd, websiteJsonLd, type MetaOptions } from '../lib/seo';
 import '../styles/global.css';
 
 export interface Props extends MetaOptions {
@@ -13,7 +13,7 @@ export interface Props extends MetaOptions {
 
 const { structuredData = [], lang = 'tr', className = '', ...rest } = Astro.props;
 const meta = buildMeta(rest);
-const jsonLd = [organizationJsonLd(), ...structuredData].filter(Boolean);
+const jsonLd = [organizationJsonLd(), websiteJsonLd(), ...structuredData].filter(Boolean);
 const currentPath = Astro.url.pathname;
 ---
 
@@ -33,6 +33,10 @@ const currentPath = Astro.url.pathname;
     <meta property="og:image" content={meta.image} />
     <meta property="og:locale" content={siteConfig.locale} />
     <meta property="og:site_name" content={siteConfig.name} />
+    <meta name="keywords" content={siteConfig.keywords} />
+    <meta name="application-name" content={siteConfig.shortName} />
+    <meta name="apple-mobile-web-app-title" content={siteConfig.shortName} />
+    <link rel="alternate" hrefLang="tr" href={siteConfig.url} />
     <meta name="twitter:card" content="summary_large_image" />
     {siteConfig.twitterHandle && <meta name="twitter:site" content={siteConfig.twitterHandle} />}
     <meta name="twitter:title" content={meta.title} />
