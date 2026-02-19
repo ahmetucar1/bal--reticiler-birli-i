@@ -1210,7 +1210,11 @@ const subUnions = [
           const timeB = b.publishedAt?.seconds || 0;
           return timeB - timeA;
         });
-        renderHero(sorted);
+
+        if (sorted.length >= 2) {
+          renderHero(sorted);
+        }
+
         renderFeatured(sorted.slice(0, 3));
       }
     } catch (error) {
