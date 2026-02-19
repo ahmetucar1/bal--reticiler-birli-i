@@ -1039,7 +1039,9 @@ const subUnions = [
     if (!root) return;
     const slider = root.querySelector('[data-hero-slider]');
     if (!slider) return;
-    const slides = Array.from(slider.querySelectorAll('.hero-slide'));
+    const slides = Array.from(slider.querySelectorAll('.hero-slide')).filter(
+      (slide) => !slide.hidden && slide.style.display !== 'none'
+    );
     const dots = Array.from(root.querySelectorAll('.hero-dot'));
     const controls = root.querySelector('.hero-controls');
     const prev = controls?.querySelector('.hero-nav-prev');
@@ -1131,28 +1133,39 @@ const subUnions = [
     const dotsWrap = root.querySelector('.hero-dots');
     if (!slider || !dotsWrap) return;
 
+    const slides = Array.from(slider.querySelectorAll('.hero-slide'));
     slider.style.setProperty('--count', items.length);
-    slider.innerHTML = items
-      .map((item, idx) => {
-        const href = `/duyurular/detay?id=${item.id}`;
-        return `
-          <figure class="hero-slide${idx === 0 ? ' is-active' : ''}" style="--i:${idx}; --count:${items.length};">
-            <a class="hero-link" href="${href}" aria-label="${item.title}">
-              <div class="hero-media">
-                <img src="${item.coverUrl}" alt="${item.title}" loading="lazy" decoding="async" />
-                <figcaption class="hero-caption">
-                  <span class="hero-date">${item.dateLabel}</span>
-                  <span class="hero-title">
-                    <span class="hero-title-text">${item.title}</span>
-                    <span class="hero-readmore">Devamını oku →</span>
-                  </span>
-                </figcaption>
-              </div>
-            </a>
-          </figure>
-        `;
-      })
-      .join('');
+
+    slides.forEach((slide, idx) => {
+      const item = items[idx];
+      if (!item) {
+        slide.hidden = true;
+        slide.classList.remove('is-active');
+        return;
+      }
+      slide.hidden = false;
+      slide.style.setProperty('--i', idx);
+      slide.style.setProperty('--count', items.length);
+
+      const href = `/duyurular/detay?id=${item.id}`;
+      const link = slide.querySelector('.hero-link');
+      if (link) {
+        link.href = href;
+        link.setAttribute('aria-label', item.title || '');
+      }
+
+      const img = slide.querySelector('img');
+      if (img) {
+        img.src = item.coverUrl;
+        img.alt = item.title || '';
+      }
+
+      const dateEl = slide.querySelector('.hero-date');
+      if (dateEl) dateEl.textContent = item.dateLabel || '';
+
+      const titleEl = slide.querySelector('.hero-title-text');
+      if (titleEl) titleEl.textContent = item.title || '';
+    });
 
     dotsWrap.innerHTML = items
       .map((_, idx) => `<button class="hero-dot" type="button" aria-label="Duyuru ${idx + 1}"></button>`)
