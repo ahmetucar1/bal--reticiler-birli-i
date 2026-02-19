@@ -113,6 +113,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </section>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js" defer></script>
   <script is:inline>
     (() => {
     const firebaseConfig = {
@@ -165,39 +169,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       statusEl.textContent = message;
     };
 
-    const loadScript = (src) =>
-      new Promise((resolve, reject) => {
-        const existing = document.querySelector(`script[src="${src}"]`);
-        if (existing) {
-          if (existing.dataset.loaded === "true") return resolve();
-          existing.addEventListener("load", () => resolve(), { once: true });
-          existing.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)), { once: true });
-          return;
-        }
-        const script = document.createElement("script");
-        script.src = src;
-        script.async = true;
-        script.addEventListener("load", () => {
-          script.dataset.loaded = "true";
-          resolve();
-        });
-        script.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)));
-        document.head.appendChild(script);
-      });
-
-    const ensureFirebase = async () => {
-      if (window.firebase) return;
-      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
-      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js");
-      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
-      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js");
+    const initFirebase = () => {
       if (!window.firebase) {
         throw new Error("Firebase yüklenemedi.");
       }
-    };
-
-    const initFirebase = async () => {
-      await ensureFirebase();
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
@@ -502,13 +477,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       await batch.commit();
     };
 
-    const bindAuth = async () => {
+    const bindAuth = () => {
       try {
-        const firebaseRefs = await initFirebase();
+        const firebaseRefs = initFirebase();
         auth = firebaseRefs.auth;
         db = firebaseRefs.db;
         storage = firebaseRefs.storage;
-        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
       } catch (error) {
         showError("Firebase yüklenemedi. Lütfen ağ ve Firebase ayarlarını kontrol edin.");
         return;
@@ -561,7 +536,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       resetForm();
     });
 
-    bindAuth();
+    window.addEventListener('load', bindAuth);
 
     imagesInput?.addEventListener("change", (event) => {
       const files = Array.from(event.target.files || []);

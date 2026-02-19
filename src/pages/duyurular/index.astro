@@ -150,44 +150,8 @@ const duyuruItems = [
 
   <script is:inline>
     (() => {
-      const firebaseConfig = {
-        apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
-        authDomain: "merkez-birligi.firebaseapp.com",
-        projectId: "merkez-birligi",
-        storageBucket: "merkez-birligi.firebasestorage.app",
-        messagingSenderId: "1017642940775",
-        appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
-        measurementId: "G-LT1MWENXB7"
-      };
-
-      const loadScript = (src) =>
-        new Promise((resolve, reject) => {
-          const existing = document.querySelector(`script[src="${src}"]`);
-          if (existing) {
-            if (existing.dataset.loaded === "true") return resolve();
-            existing.addEventListener("load", () => resolve(), { once: true });
-            existing.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)), { once: true });
-            return;
-          }
-          const script = document.createElement("script");
-          script.src = src;
-          script.async = true;
-          script.addEventListener("load", () => {
-            script.dataset.loaded = "true";
-            resolve();
-          });
-          script.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)));
-          document.head.appendChild(script);
-        });
-
-      const ensureFirebase = async () => {
-        if (window.firebase) return;
-        await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
-        await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
-        if (!window.firebase) {
-          throw new Error("Firebase yüklenemedi.");
-        }
-      };
+      const apiKey = "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c";
+      const apiBase = "https://firestore.googleapis.com/v1/projects/merkez-birligi/databases/(default)/documents";
 
     const formatDate = (value) => {
       if (!value) return "2026";
@@ -251,26 +215,48 @@ const duyuruItems = [
       applyFilter();
     });
 
+    const getField = (fields, key) => fields?.[key] || null;
+    const getString = (field) => field?.stringValue ?? "";
+    const getNumber = (field) => (field?.integerValue ? Number(field.integerValue) : null);
+    const getTimestamp = (field) => (field?.timestampValue ? new Date(field.timestampValue) : null);
+    const getImages = (field) => {
+      const values = field?.arrayValue?.values || [];
+      return values
+        .map((entry) => {
+          const inner = entry?.mapValue?.fields || {};
+          return {
+            url: inner.url?.stringValue || "",
+            name: inner.name?.stringValue || ""
+          };
+        })
+        .filter((img) => img.url);
+    };
+
     const loadDuyurular = async () => {
       try {
-        await ensureFirebase();
-        if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
-        const snapshot = await db.collection("announcements").get();
-        const items = snapshot.docs
-          .map((docSnap) => {
-            const data = docSnap.data() || {};
-            const coverUrl = data.coverUrl || data.images?.[0]?.url;
-            if (!data.title || !coverUrl) return null;
+        const response = await fetch(`${apiBase}/announcements?key=${apiKey}`);
+        if (!response.ok) throw new Error("Duyurular getirilemedi.");
+        const payload = await response.json();
+        const docs = Array.isArray(payload.documents) ? payload.documents : [];
+        const items = docs
+          .map((doc) => {
+            const fields = doc.fields || {};
+            const id = doc.name?.split("/").pop();
+            const title = getString(getField(fields, "title"));
+            const coverUrl = getString(getField(fields, "coverUrl"));
+            const images = getImages(getField(fields, "images"));
+            const order = getNumber(getField(fields, "order"));
+            const eventDate = getString(getField(fields, "eventDate"));
+            const publishedAt = getTimestamp(getField(fields, "publishedAt")) || getTimestamp(getField(fields, "createdAt"));
+            const resolvedCover = coverUrl || images[0]?.url;
+            if (!id || !title || !resolvedCover) return null;
             return {
-              id: docSnap.id,
-              title: data.title,
-              coverUrl,
-              dateLabel: formatDate(data.eventDate || data.publishedAt || data.createdAt),
-              order: typeof data.order === "number" ? data.order : null,
-              publishedAt: data.publishedAt || data.createdAt
+              id,
+              title,
+              coverUrl: resolvedCover,
+              dateLabel: formatDate(eventDate || publishedAt),
+              order,
+              publishedAt
             };
           })
           .filter(Boolean);
@@ -280,8 +266,8 @@ const duyuruItems = [
             const orderA = a.order ?? 9999;
             const orderB = b.order ?? 9999;
             if (orderA !== orderB) return orderA - orderB;
-            const timeA = a.publishedAt?.seconds || 0;
-            const timeB = b.publishedAt?.seconds || 0;
+            const timeA = a.publishedAt ? a.publishedAt.getTime() : 0;
+            const timeB = b.publishedAt ? b.publishedAt.getTime() : 0;
             return timeB - timeA;
           });
           renderCards(sorted);
@@ -293,7 +279,7 @@ const duyuruItems = [
     };
 
     applyFilter();
-    loadDuyurular();
+    window.addEventListener('load', loadDuyurular);
   })();
   </script>
 </BaseLayout>

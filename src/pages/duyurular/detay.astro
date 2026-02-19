@@ -35,43 +35,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   <script is:inline>
     (() => {
-    const firebaseConfig = {
-      apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
-      authDomain: "merkez-birligi.firebaseapp.com",
-      projectId: "merkez-birligi",
-      storageBucket: "merkez-birligi.firebasestorage.app",
-      messagingSenderId: "1017642940775",
-      appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
-      measurementId: "G-LT1MWENXB7"
-    };
-    const loadScript = (src) =>
-      new Promise((resolve, reject) => {
-        const existing = document.querySelector(`script[src="${src}"]`);
-        if (existing) {
-          if (existing.dataset.loaded === "true") return resolve();
-          existing.addEventListener("load", () => resolve(), { once: true });
-          existing.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)), { once: true });
-          return;
-        }
-        const script = document.createElement("script");
-        script.src = src;
-        script.async = true;
-        script.addEventListener("load", () => {
-          script.dataset.loaded = "true";
-          resolve();
-        });
-        script.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)));
-        document.head.appendChild(script);
-      });
-
-    const ensureFirebase = async () => {
-      if (window.firebase) return;
-      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
-      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
-      if (!window.firebase) {
-        throw new Error("Firebase yüklenemedi.");
-      }
-    };
+    const apiKey = "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c";
+    const apiBase = "https://firestore.googleapis.com/v1/projects/merkez-birligi/databases/(default)/documents";
 
     const formatDate = (value) => {
       if (!value) return "";
@@ -149,6 +114,22 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       if (event.key === "ArrowRight") showNext();
     });
 
+    const getField = (fields, key) => fields?.[key] || null;
+    const getString = (field) => field?.stringValue ?? "";
+    const getTimestamp = (field) => (field?.timestampValue ? new Date(field.timestampValue) : null);
+    const getImages = (field) => {
+      const values = field?.arrayValue?.values || [];
+      return values
+        .map((entry) => {
+          const inner = entry?.mapValue?.fields || {};
+          return {
+            url: inner.url?.stringValue || "",
+            name: inner.name?.stringValue || ""
+          };
+        })
+        .filter((img) => img.url);
+    };
+
     const loadDetail = async () => {
       const id = new URLSearchParams(window.location.search).get("id");
       if (!id) {
@@ -157,18 +138,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
 
       try {
-        await ensureFirebase();
-        if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
-        const snap = await db.collection("announcements").doc(id).get();
-        if (!snap.exists()) {
+        const response = await fetch(`${apiBase}/announcements/${encodeURIComponent(id)}?key=${apiKey}`);
+        if (!response.ok) {
           loading.textContent = "Duyuru bulunamadı.";
           return;
         }
-
-        const data = snap.data();
+        const payload = await response.json();
+        const fields = payload.fields || {};
+        const data = {
+          title: getString(getField(fields, "title")),
+          body: getString(getField(fields, "body")),
+          coverUrl: getString(getField(fields, "coverUrl")),
+          images: getImages(getField(fields, "images")),
+          eventDate: getString(getField(fields, "eventDate")),
+          publishedAt: getTimestamp(getField(fields, "publishedAt")) || getTimestamp(getField(fields, "createdAt"))
+        };
 
         titleEl.textContent = data.title || "";
         const dateLabel = data.eventDate || data.publishedAt;
@@ -208,7 +192,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
     };
 
-    loadDetail();
+    window.addEventListener('load', loadDetail);
     })();
   </script>
 
