@@ -652,7 +652,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         statusEl.textContent = editMode ? "Duyuru güncellendi." : "Duyuru yayınlandı.";
         resetForm();
-        await loadAnnouncements();
+        try {
+          await loadAnnouncements();
+        } catch (refreshError) {
+          statusEl.textContent = `${statusEl.textContent} Liste yenilenemedi, sayfayı yenileyin.`;
+        }
       } catch (error) {
         const message = error?.message || error?.code || "Yayınlama sırasında hata oluştu.";
         statusEl.textContent = `Yayınlama sırasında hata oluştu: ${message}`;
