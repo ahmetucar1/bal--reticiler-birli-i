@@ -1035,7 +1035,7 @@ const subUnions = [
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
@@ -1183,8 +1183,7 @@ const subUnions = [
 
   const loadAnnouncements = async () => {
     try {
-      const q = query(collection(db, "announcements"), orderBy("order", "asc"), limit(20));
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(collection(db, "announcements"));
       const items = snapshot.docs
         .map((doc) => {
           const data = doc.data() || {};
@@ -1195,14 +1194,24 @@ const subUnions = [
             id: doc.id,
             title: data.title,
             coverUrl,
-            dateLabel
+            dateLabel,
+            order: typeof data.order === "number" ? data.order : null,
+            publishedAt: data.publishedAt || data.createdAt
           };
         })
         .filter(Boolean);
 
       if (items.length > 0) {
-        renderHero(items);
-        renderFeatured(items.slice(0, 3));
+        const sorted = [...items].sort((a, b) => {
+          const orderA = a.order ?? 9999;
+          const orderB = b.order ?? 9999;
+          if (orderA !== orderB) return orderA - orderB;
+          const timeA = a.publishedAt?.seconds || 0;
+          const timeB = b.publishedAt?.seconds || 0;
+          return timeB - timeA;
+        });
+        renderHero(sorted);
+        renderFeatured(sorted.slice(0, 3));
       }
     } catch (error) {
       // fallback to static content

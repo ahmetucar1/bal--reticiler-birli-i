@@ -150,7 +150,7 @@ const duyuruItems = [
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
@@ -229,8 +229,7 @@ const duyuruItems = [
 
     const loadDuyurular = async () => {
       try {
-        const q = query(collection(db, "announcements"), orderBy("order", "asc"));
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(collection(db, "announcements"));
         const items = snapshot.docs
           .map((doc) => {
             const data = doc.data() || {};
@@ -240,14 +239,24 @@ const duyuruItems = [
               id: doc.id,
               title: data.title,
               coverUrl,
-              dateLabel: formatDate(data.eventDate || data.publishedAt || data.createdAt)
+              dateLabel: formatDate(data.eventDate || data.publishedAt || data.createdAt),
+              order: typeof data.order === "number" ? data.order : null,
+              publishedAt: data.publishedAt || data.createdAt
             };
           })
           .filter(Boolean);
 
         if (items.length > 0) {
-          renderCards(items);
-          if (duyuruCountEl) duyuruCountEl.textContent = `${items.length} duyuru`;
+          const sorted = [...items].sort((a, b) => {
+            const orderA = a.order ?? 9999;
+            const orderB = b.order ?? 9999;
+            if (orderA !== orderB) return orderA - orderB;
+            const timeA = a.publishedAt?.seconds || 0;
+            const timeB = b.publishedAt?.seconds || 0;
+            return timeB - timeA;
+          });
+          renderCards(sorted);
+          if (duyuruCountEl) duyuruCountEl.textContent = `${sorted.length} duyuru`;
         }
       } catch (error) {
         // fallback to static content

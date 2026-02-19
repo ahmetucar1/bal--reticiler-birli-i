@@ -187,9 +187,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     };
 
     const toInputDate = (value) => {
-      if (!value || typeof value !== "string") return "";
+      if (!value) return "";
+      if (typeof value !== "string") return "";
       const parsed = new Date(value);
-      if (Number.isNaN(parsed.getTime())) return "";
+      if (Number.isNaN(parsed.getTime())) return value;
       return parsed.toISOString().slice(0, 10);
     };
 
@@ -292,10 +293,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     };
 
     const loadAnnouncements = async () => {
-      const q = query(collection(db, "announcements"), orderBy("order", "asc"));
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(collection(db, "announcements"));
       announcements = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
       renderList();
+      if (announcements.length <= 1) {
+        statusEl.textContent = "Eski duyuruları geri getirmek için butona basabilirsiniz.";
+      }
     };
 
     const enterEditMode = (item) => {
@@ -558,7 +561,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         statusEl.textContent = editMode ? "Görseller güncellendi." : "Yükleme tamamlandı. Yayınla butonuna basabilirsiniz.";
         publishBtn.disabled = false;
       } catch (error) {
-        statusEl.textContent = "Yükleme sırasında hata oluştu.";
+        const message = error?.message || error?.code || "Yükleme sırasında hata oluştu.";
+        statusEl.textContent = `Yükleme sırasında hata oluştu: ${message}`;
       } finally {
         uploadBtn.disabled = false;
       }
@@ -581,15 +585,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       publishBtn.disabled = true;
 
       try {
-        const cover = docs[selectedIndex] || docs[0];
+        const cover = docs[selectedIndex] || docs[0] || (currentData?.coverUrl ? { url: currentData.coverUrl, path: currentData.coverPath } : null);
+        if (!cover?.url) {
+          statusEl.textContent = "Kapak fotoğrafı bulunamadı.";
+          publishBtn.disabled = false;
+          return;
+        }
+
         const updates = {
           title: titleInput.value.trim(),
           body: bodyInput.value.trim(),
-          eventDate: eventDateInput.value || "",
+          eventDate: eventDateInput.value || currentData?.eventDate || "",
           images: docs,
-          coverUrl: cover.url,
-          coverPath: cover.path
+          coverUrl: cover.url
         };
+        if (cover.path) {
+          updates.coverPath = cover.path;
+        }
 
         if (!editMode) {
           const newOrder = getMinOrder() - 1;
@@ -605,7 +617,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         resetForm();
         await loadAnnouncements();
       } catch (error) {
-        statusEl.textContent = "Yayınlama sırasında hata oluştu.";
+        const message = error?.message || error?.code || "Yayınlama sırasında hata oluştu.";
+        statusEl.textContent = `Yayınlama sırasında hata oluştu: ${message}`;
       }
     });
 
