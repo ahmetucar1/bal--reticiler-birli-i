@@ -1,0 +1,282 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Yönetim" description="Duyuru yönetim paneli" canonical="https://www.balmerkezbirligi.org/yonetim">
+  <section class="page-shell section-gap">
+    <div class="mx-auto max-w-3xl space-y-6">
+      <div class="rounded-3xl border border-sand-200 bg-white p-6 shadow-card" id="auth-card">
+        <h1 class="text-2xl font-semibold text-slate-900">Yönetim Girişi</h1>
+        <p class="mt-2 text-sm text-slate-600">
+          Bu sayfa yalnızca yetkili hesap içindir. Google hesabınızla giriş yapın.
+        </p>
+        <button
+          id="google-login"
+          class="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-pine-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700"
+        >
+          Google ile giriş yap
+        </button>
+        <p id="auth-error" class="mt-3 text-sm text-rose-600 hidden"></p>
+      </div>
+
+      <div class="rounded-3xl border border-sand-200 bg-white p-6 shadow-card hidden" id="admin-panel">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-900">Duyuru Yayınla</h2>
+            <p class="text-sm text-slate-600">Başlık, metin ve görselleri girin.</p>
+          </div>
+          <button id="logout" class="text-sm font-semibold text-slate-500 hover:text-slate-800">Çıkış</button>
+        </div>
+
+        <form id="announcement-form" class="mt-6 space-y-5">
+          <div>
+            <label class="text-sm font-semibold text-slate-700" for="title">Duyuru başlığı</label>
+            <input
+              id="title"
+              name="title"
+              required
+              class="mt-2 w-full rounded-xl border border-sand-200 bg-sand-50 px-4 py-3 text-sm outline-none transition focus:border-pine-300 focus:bg-white"
+              placeholder="Duyuru başlığı"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-semibold text-slate-700" for="body">Duyuru metni</label>
+            <textarea
+              id="body"
+              name="body"
+              rows="6"
+              required
+              class="mt-2 w-full rounded-xl border border-sand-200 bg-sand-50 px-4 py-3 text-sm outline-none transition focus:border-pine-300 focus:bg-white"
+              placeholder="Duyuru metni"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="text-sm font-semibold text-slate-700" for="images">Duyuru fotoğrafları</label>
+            <input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/*"
+              multiple
+              class="mt-2 block w-full text-sm text-slate-600"
+            />
+            <p class="mt-2 text-xs text-slate-500">Yüklemeden önce kapak fotoğrafını seçebilirsiniz.</p>
+          </div>
+
+          <div id="preview" class="grid gap-3 sm:grid-cols-2"></div>
+
+          <div class="flex flex-wrap gap-3">
+            <button
+              type="button"
+              id="upload"
+              class="inline-flex items-center justify-center rounded-full border border-pine-600 px-5 py-2 text-sm font-semibold text-pine-700 transition hover:bg-pine-50"
+            >
+              Fotoğrafları yükle
+            </button>
+            <button
+              type="submit"
+              id="publish"
+              class="inline-flex items-center justify-center rounded-full bg-pine-600 px-5 py-2 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700"
+              disabled
+            >
+              Yayınla
+            </button>
+          </div>
+
+          <p id="status" class="text-sm text-slate-600"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, serverTimestamp, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
+      authDomain: "merkez-birligi.firebaseapp.com",
+      projectId: "merkez-birligi",
+      storageBucket: "merkez-birligi.firebasestorage.app",
+      messagingSenderId: "1017642940775",
+      appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
+      measurementId: "G-LT1MWENXB7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const allowedEmail = "ucaraahmet@gmail.com";
+
+    const authCard = document.getElementById("auth-card");
+    const adminPanel = document.getElementById("admin-panel");
+    const loginBtn = document.getElementById("google-login");
+    const logoutBtn = document.getElementById("logout");
+    const authError = document.getElementById("auth-error");
+    const form = document.getElementById("announcement-form");
+    const titleInput = document.getElementById("title");
+    const bodyInput = document.getElementById("body");
+    const imagesInput = document.getElementById("images");
+    const preview = document.getElementById("preview");
+    const uploadBtn = document.getElementById("upload");
+    const publishBtn = document.getElementById("publish");
+    const statusEl = document.getElementById("status");
+
+    let selectedIndex = 0;
+    let uploadedImages = [];
+    let currentDocId = "";
+
+    const showError = (message) => {
+      authError.textContent = message;
+      authError.classList.remove("hidden");
+    };
+
+    loginBtn?.addEventListener("click", async () => {
+      authError.classList.add("hidden");
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        showError("Giriş başarısız. Tekrar deneyin.");
+      }
+    });
+
+    logoutBtn?.addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        authCard?.classList.remove("hidden");
+        adminPanel?.classList.add("hidden");
+        return;
+      }
+      if (user.email !== allowedEmail) {
+        showError("Bu hesap yetkili değil. Lütfen doğru hesapla giriş yapın.");
+        signOut(auth);
+        return;
+      }
+      authCard?.classList.add("hidden");
+      adminPanel?.classList.remove("hidden");
+    });
+
+    const buildPreview = (files) => {
+      preview.innerHTML = "";
+      if (!files.length) return;
+      files.forEach((file, index) => {
+        const wrapper = document.createElement("label");
+        wrapper.className = "flex items-center gap-3 rounded-xl border border-sand-200 bg-sand-50 px-3 py-2 text-sm";
+        wrapper.innerHTML = `
+          <input type="radio" name="cover" ${index === 0 ? "checked" : ""} />
+          <span class="inline-flex h-10 w-14 items-center justify-center rounded-lg bg-white shadow-sm overflow-hidden">
+            <img src="${URL.createObjectURL(file)}" alt="${file.name}" class="h-full w-full object-cover" />
+          </span>
+          <span class="truncate">${file.name}</span>
+        `;
+        const radio = wrapper.querySelector("input");
+        radio.addEventListener("change", () => {
+          selectedIndex = index;
+        });
+        preview.appendChild(wrapper);
+      });
+    };
+
+    imagesInput?.addEventListener("change", (event) => {
+      const files = Array.from(event.target.files || []);
+      selectedIndex = 0;
+      uploadedImages = [];
+      currentDocId = "";
+      publishBtn.disabled = true;
+      statusEl.textContent = "";
+      buildPreview(files);
+    });
+
+    uploadBtn?.addEventListener("click", async () => {
+      const files = Array.from(imagesInput.files || []);
+      if (!files.length) {
+        statusEl.textContent = "Lütfen fotoğraf seçin.";
+        return;
+      }
+      if (!titleInput.value.trim() || !bodyInput.value.trim()) {
+        statusEl.textContent = "Başlık ve metin girin.";
+        return;
+      }
+
+      statusEl.textContent = "Fotoğraflar yükleniyor...";
+      uploadBtn.disabled = true;
+
+      try {
+        const docRef = await addDoc(collection(db, "announcements"), {
+          title: titleInput.value.trim(),
+          body: bodyInput.value.trim(),
+          createdAt: serverTimestamp(),
+          publishedAt: null
+        });
+        currentDocId = docRef.id;
+
+        const uploads = await Promise.all(
+          files.map(async (file) => {
+            const storageRef = ref(storage, `announcements/${docRef.id}/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            return { url, path: storageRef.fullPath, name: file.name };
+          })
+        );
+
+        uploadedImages = uploads;
+
+        await updateDoc(doc(db, "announcements", docRef.id), {
+          images: uploads,
+          coverUrl: uploads[selectedIndex]?.url || uploads[0].url,
+          coverPath: uploads[selectedIndex]?.path || uploads[0].path
+        });
+
+        statusEl.textContent = "Yükleme tamamlandı. Yayınla butonuna basabilirsiniz.";
+        publishBtn.disabled = false;
+      } catch (error) {
+        statusEl.textContent = "Yükleme sırasında hata oluştu.";
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!uploadedImages.length) {
+        statusEl.textContent = "Önce fotoğrafları yükleyin.";
+        return;
+      }
+      statusEl.textContent = "Yayınlanıyor...";
+      publishBtn.disabled = true;
+
+      try {
+        const docs = uploadedImages;
+        const cover = docs[selectedIndex] || docs[0];
+        if (!currentDocId) return;
+
+        await updateDoc(doc(db, "announcements", currentDocId), {
+          title: titleInput.value.trim(),
+          body: bodyInput.value.trim(),
+          images: docs,
+          coverUrl: cover.url,
+          coverPath: cover.path,
+          publishedAt: serverTimestamp()
+        });
+
+        statusEl.textContent = "Duyuru yayınlandı.";
+        form.reset();
+        preview.innerHTML = "";
+        publishBtn.disabled = true;
+        currentDocId = "";
+      } catch (error) {
+        statusEl.textContent = "Yayınlama sırasında hata oluştu.";
+      }
+    });
+  </script>
+</BaseLayout>

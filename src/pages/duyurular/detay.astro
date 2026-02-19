@@ -1,0 +1,255 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Duyuru" description="Duyuru detayları" canonical="https://www.balmerkezbirligi.org/duyurular/detay">
+  <section class="page-shell section-gap space-y-6">
+    <div id="detail-loading" class="rounded-2xl border border-dashed border-sand-200 bg-sand-50 px-4 py-6 text-sm text-slate-700">
+      Duyuru yükleniyor...
+    </div>
+
+    <div id="detail-content" class="hidden space-y-6">
+      <div class="space-y-2">
+        <p id="detail-date" class="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700"></p>
+        <h1 id="detail-title" class="text-3xl leading-tight text-slate-900"></h1>
+        <div id="detail-body" class="text-base text-slate-700 space-y-4"></div>
+      </div>
+
+      <picture id="detail-cover" class="block overflow-hidden rounded-3xl border border-sand-200 shadow-soft hidden">
+        <img id="detail-cover-img" src="" alt="" loading="lazy" decoding="async" class="w-full" />
+      </picture>
+
+      <div class="space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900">Duyuruya ait diğer fotoğraflar</h2>
+        <div id="detail-gallery" class="gallery-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="lightbox" data-lightbox hidden>
+    <button class="lightbox-close" type="button" aria-label="Kapat">×</button>
+    <button class="lightbox-nav lightbox-prev" type="button" aria-label="Önceki görsel">‹</button>
+    <img class="lightbox-image" alt="Duyuru görseli" />
+    <button class="lightbox-nav lightbox-next" type="button" aria-label="Sonraki görsel">›</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
+      authDomain: "merkez-birligi.firebaseapp.com",
+      projectId: "merkez-birligi",
+      storageBucket: "merkez-birligi.firebasestorage.app",
+      messagingSenderId: "1017642940775",
+      appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
+      measurementId: "G-LT1MWENXB7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const formatDate = (value) => {
+      if (!value) return "";
+      const date = value instanceof Date ? value : value.toDate?.() || new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+    };
+
+    const loading = document.getElementById("detail-loading");
+    const content = document.getElementById("detail-content");
+    const titleEl = document.getElementById("detail-title");
+    const dateEl = document.getElementById("detail-date");
+    const bodyEl = document.getElementById("detail-body");
+    const coverWrap = document.getElementById("detail-cover");
+    const coverImg = document.getElementById("detail-cover-img");
+    const gallery = document.getElementById("detail-gallery");
+
+    const lightbox = document.querySelector("[data-lightbox]");
+    const lightboxImage = lightbox?.querySelector(".lightbox-image");
+    const closeBtn = lightbox?.querySelector(".lightbox-close");
+    const prevBtn = lightbox?.querySelector(".lightbox-prev");
+    const nextBtn = lightbox?.querySelector(".lightbox-next");
+
+    let galleryImages = [];
+    let activeIndex = 0;
+
+    const openLightbox = (index) => {
+      const img = galleryImages[index];
+      if (!img) return;
+      activeIndex = index;
+      lightboxImage.src = img.src;
+      lightboxImage.alt = img.alt || "Duyuru görseli";
+      lightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+    };
+
+    const closeLightbox = () => {
+      lightbox.hidden = true;
+      lightboxImage.src = "";
+      document.body.style.overflow = "";
+    };
+
+    const showPrev = () => {
+      const nextIndex = (activeIndex - 1 + galleryImages.length) % galleryImages.length;
+      openLightbox(nextIndex);
+    };
+
+    const showNext = () => {
+      const nextIndex = (activeIndex + 1) % galleryImages.length;
+      openLightbox(nextIndex);
+    };
+
+    closeBtn?.addEventListener("click", closeLightbox);
+    prevBtn?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      showPrev();
+    });
+    nextBtn?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      showNext();
+    });
+    lightbox?.addEventListener("click", (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!lightbox || lightbox.hidden) return;
+      if (event.key === "Escape") closeLightbox();
+      if (event.key === "ArrowLeft") showPrev();
+      if (event.key === "ArrowRight") showNext();
+    });
+
+    const loadDetail = async () => {
+      const id = new URLSearchParams(window.location.search).get("id");
+      if (!id) {
+        loading.textContent = "Duyuru bulunamadı.";
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "announcements", id));
+        if (!snap.exists()) {
+          loading.textContent = "Duyuru bulunamadı.";
+          return;
+        }
+
+        const data = snap.data();
+        if (!data.publishedAt) {
+          loading.textContent = "Duyuru bulunamadı.";
+          return;
+        }
+
+        titleEl.textContent = data.title || "";
+        dateEl.textContent = data.publishedAt ? `Duyuru • ${formatDate(data.publishedAt)}` : "Duyuru";
+
+        bodyEl.innerHTML = "";
+        const paragraphs = (data.body || "").split("\n").filter(Boolean);
+        paragraphs.forEach((text) => {
+          const p = document.createElement("p");
+          p.textContent = text;
+          bodyEl.appendChild(p);
+        });
+
+        if (data.coverUrl) {
+          coverImg.src = data.coverUrl;
+          coverImg.alt = data.title || "Duyuru görseli";
+          coverWrap.classList.remove("hidden");
+        }
+
+        const images = Array.isArray(data.images) ? data.images : [];
+        gallery.innerHTML = images
+          .map(
+            (img, index) =>
+              `<img src="${img.url}" alt="${data.title || 'Duyuru görseli'} ${index + 1}" loading="lazy" decoding="async" />`
+          )
+          .join("");
+
+        galleryImages = Array.from(gallery.querySelectorAll("img"));
+        galleryImages.forEach((img, index) => {
+          img.addEventListener("click", () => openLightbox(index));
+        });
+
+        loading.classList.add("hidden");
+        content.classList.remove("hidden");
+      } catch (error) {
+        loading.textContent = "Duyuru yüklenemedi.";
+      }
+    };
+
+    loadDetail();
+  </script>
+
+  <style>
+    .gallery-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .gallery-grid img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+      background: #f8fafc;
+      cursor: zoom-in;
+    }
+    @media (max-width: 640px) {
+      .gallery-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      display: grid;
+      place-items: center;
+      z-index: 9999;
+      padding: 24px;
+    }
+    .lightbox-image {
+      max-width: min(1100px, 92vw);
+      max-height: 86vh;
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+      background: #0f172a;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      color: #0f172a;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      width: 44px;
+      height: 44px;
+      margin-top: -22px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      color: #0f172a;
+      font-size: 1.6rem;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
+    }
+    .lightbox-prev {
+      left: 18px;
+    }
+    .lightbox-next {
+      right: 18px;
+    }
+  </style>
+</BaseLayout>

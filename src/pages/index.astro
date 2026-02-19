@@ -276,7 +276,7 @@ const subUnions = [
       </div>
 
       {topAnnouncements.length > 0 ? (
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-featured-grid>
           {topAnnouncements.map((item) => (
             <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-sand-200 bg-white shadow-card transition hover:-translate-y-1 hover:shadow-soft">
               <a class="block h-full" href={item.href}>
@@ -299,7 +299,10 @@ const subUnions = [
           ))}
         </div>
       ) : (
-        <div class="rounded-2xl border border-dashed border-sand-200 bg-sand-50 px-4 py-6 text-sm text-slate-700">
+        <div
+          class="rounded-2xl border border-dashed border-sand-200 bg-sand-50 px-4 py-6 text-sm text-slate-700"
+          data-featured-empty
+        >
           Duyuru içerikleri hazırlanıyor.
         </div>
       )}
@@ -1030,7 +1033,30 @@ const subUnions = [
   
 </style>
 
-<script is:inline>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
+    authDomain: "merkez-birligi.firebaseapp.com",
+    projectId: "merkez-birligi",
+    storageBucket: "merkez-birligi.firebasestorage.app",
+    messagingSenderId: "1017642940775",
+    appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
+    measurementId: "G-LT1MWENXB7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const formatDate = (value) => {
+    if (!value) return "2026";
+    const date = value instanceof Date ? value : value.toDate?.() || new Date(value);
+    if (Number.isNaN(date.getTime())) return "2026";
+    return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+  };
+
   const initHeroSlider = () => {
     const root = document.querySelector('[data-hero-rotator]');
     if (!root) return;
@@ -1087,9 +1113,102 @@ const subUnions = [
     }
   };
 
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', initHeroSlider);
-  } else {
+  const renderHero = (items) => {
+    const root = document.querySelector('[data-hero-rotator]');
+    if (!root) return;
+    const slider = root.querySelector('[data-hero-slider]');
+    const dotsWrap = root.querySelector('.hero-dots');
+    if (!slider || !dotsWrap) return;
+
+    slider.style.setProperty('--count', items.length);
+    slider.innerHTML = items
+      .map((item, idx) => {
+        const href = `/duyurular/detay?id=${item.id}`;
+        return `
+          <figure class="hero-slide${idx === 0 ? ' is-active' : ''}" style="--i:${idx}; --count:${items.length};">
+            <a class="hero-link" href="${href}" aria-label="${item.title}">
+              <div class="hero-media">
+                <img src="${item.coverUrl}" alt="${item.title}" loading="lazy" decoding="async" />
+                <figcaption class="hero-caption">
+                  <span class="hero-date">${item.dateLabel}</span>
+                  <span class="hero-title">
+                    <span class="hero-title-text">${item.title}</span>
+                    <span class="hero-readmore">Devamını oku →</span>
+                  </span>
+                </figcaption>
+              </div>
+            </a>
+          </figure>
+        `;
+      })
+      .join('');
+
+    dotsWrap.innerHTML = items
+      .map((_, idx) => `<button class="hero-dot" type="button" aria-label="Duyuru ${idx + 1}"></button>`)
+      .join('');
+  };
+
+  const renderFeatured = (items) => {
+    const grid = document.querySelector('[data-featured-grid]');
+    const empty = document.querySelector('[data-featured-empty]');
+    if (!grid) return;
+    if (!items.length) return;
+    grid.innerHTML = items
+      .map((item) => {
+        const href = `/duyurular/detay?id=${item.id}`;
+        return `
+          <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-sand-200 bg-white shadow-card transition hover:-translate-y-1 hover:shadow-soft">
+            <a class="block h-full" href="${href}">
+              <div class="relative aspect-[4/3] overflow-hidden bg-sand-100">
+                <img src="${item.coverUrl}" alt="${item.title}" loading="lazy" decoding="async" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+              </div>
+              <div class="flex flex-col gap-2 px-4 py-3 text-slate-900">
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500">${item.dateLabel}</p>
+                <h3 class="text-sm font-semibold">${item.title}</h3>
+                <p class="text-xs text-pine-700">Devamını oku →</p>
+              </div>
+            </a>
+          </article>
+        `;
+      })
+      .join('');
+
+    if (empty) empty.classList.add('hidden');
+  };
+
+  const loadAnnouncements = async () => {
+    try {
+      const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(10));
+      const snapshot = await getDocs(q);
+      const items = snapshot.docs
+        .map((doc) => {
+          const data = doc.data() || {};
+          const coverUrl = data.coverUrl || data.images?.[0]?.url;
+          if (!data.title || !coverUrl || !data.publishedAt) return null;
+          const dateLabel = formatDate(data.publishedAt || data.createdAt);
+          return {
+            id: doc.id,
+            title: data.title,
+            coverUrl,
+            dateLabel
+          };
+        })
+        .filter(Boolean);
+
+      if (items.length > 0) {
+        renderHero(items);
+        renderFeatured(items.slice(0, 3));
+      }
+    } catch (error) {
+      // fallback to static content
+    }
+
     initHeroSlider();
+  };
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', loadAnnouncements);
+  } else {
+    loadAnnouncements();
   }
 </script>

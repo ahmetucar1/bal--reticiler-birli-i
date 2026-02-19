@@ -84,10 +84,10 @@ const duyuruItems = [
         title="Genel kurul duyuruları"
         description="Haftalık ziyaretler, saha çalışmaları ve resmî bildirimler."
       />
-      <p class="text-sm text-slate-700">{duyuruItems.length} duyuru</p>
+      <p class="text-sm text-slate-700" data-duyuru-count>{duyuruItems.length} duyuru</p>
     </div>
 
-    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-duyuru-grid>
       {duyuruItems.map((item) => (
         <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-sand-200 bg-white shadow-card transition hover:-translate-y-1 hover:shadow-soft">
           <a class="block h-full" href={item.href}>
@@ -149,10 +149,58 @@ const duyuruItems = [
   </section>
 
   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
+      authDomain: "merkez-birligi.firebaseapp.com",
+      projectId: "merkez-birligi",
+      storageBucket: "merkez-birligi.firebasestorage.app",
+      messagingSenderId: "1017642940775",
+      appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
+      measurementId: "G-LT1MWENXB7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const formatDate = (value) => {
+      if (!value) return "2026";
+      const date = value instanceof Date ? value : value.toDate?.() || new Date(value);
+      if (Number.isNaN(date.getTime())) return "2026";
+      return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+    };
+
+    const renderCards = (items) => {
+      const grid = document.querySelector("[data-duyuru-grid]");
+      if (!grid || !items.length) return;
+      grid.innerHTML = items
+        .map((item) => {
+          const href = `/duyurular/detay?id=${item.id}`;
+          return `
+            <article class=\"group flex h-full flex-col overflow-hidden rounded-2xl border border-sand-200 bg-white shadow-card transition hover:-translate-y-1 hover:shadow-soft\">
+              <a class=\"block h-full\" href=\"${href}\">
+                <div class=\"relative aspect-[4/3] overflow-hidden bg-sand-100\">
+                  <img src=\"${item.coverUrl}\" alt=\"${item.title}\" loading=\"lazy\" decoding=\"async\" class=\"h-full w-full object-cover transition duration-300 group-hover:scale-105\" />
+                </div>
+                <div class=\"flex flex-col gap-2 px-4 py-3 text-slate-900\">
+                  <p class=\"text-[11px] uppercase tracking-[0.18em] text-slate-500\">${item.dateLabel}</p>
+                  <h3 class=\"text-sm font-semibold line-clamp-1\">${item.title}</h3>
+                  <p class=\"text-xs text-pine-700\">Devamını oku →</p>
+                </div>
+              </a>
+            </article>
+          `;
+        })
+        .join("");
+    };
+
     const searchInput = document.querySelector('#arama');
     const cards = Array.from(document.querySelectorAll('.activity-card'));
     const empty = document.querySelector('#empty-state');
     const countEl = document.querySelector('#result-count');
+    const duyuruCountEl = document.querySelector('[data-duyuru-count]');
 
     const applyFilter = () => {
       const query = (searchInput.value || '').toLowerCase();
@@ -174,6 +222,34 @@ const duyuruItems = [
       applyFilter();
     });
 
+    const loadDuyurular = async () => {
+      try {
+        const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        const items = snapshot.docs
+          .map((doc) => {
+            const data = doc.data() || {};
+            const coverUrl = data.coverUrl || data.images?.[0]?.url;
+            if (!data.title || !coverUrl || !data.publishedAt) return null;
+            return {
+              id: doc.id,
+              title: data.title,
+              coverUrl,
+              dateLabel: formatDate(data.publishedAt || data.createdAt)
+            };
+          })
+          .filter(Boolean);
+
+        if (items.length > 0) {
+          renderCards(items);
+          if (duyuruCountEl) duyuruCountEl.textContent = `${items.length} duyuru`;
+        }
+      } catch (error) {
+        // fallback to static content
+      }
+    };
+
     applyFilter();
+    loadDuyurular();
   </script>
 </BaseLayout>
