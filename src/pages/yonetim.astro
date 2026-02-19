@@ -113,12 +113,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, serverTimestamp, doc, getDocs, deleteDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
+  <script is:inline>
+    (() => {
     const firebaseConfig = {
       apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
       authDomain: "merkez-birligi.firebaseapp.com",
@@ -128,11 +124,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
       measurementId: "G-LT1MWENXB7"
     };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
 
     const allowedEmail = "ucaraahmet@gmail.com";
 
@@ -165,9 +156,61 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       authError.classList.remove("hidden");
     };
 
+    const showAuthStatus = (message) => {
+      authError.textContent = message;
+      authError.classList.remove("hidden");
+    };
+
     const showStatus = (message) => {
       statusEl.textContent = message;
     };
+
+    const loadScript = (src) =>
+      new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if (existing) {
+          if (existing.dataset.loaded === "true") return resolve();
+          existing.addEventListener("load", () => resolve(), { once: true });
+          existing.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)), { once: true });
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.addEventListener("load", () => {
+          script.dataset.loaded = "true";
+          resolve();
+        });
+        script.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)));
+        document.head.appendChild(script);
+      });
+
+    const ensureFirebase = async () => {
+      if (window.firebase) return;
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js");
+      if (!window.firebase) {
+        throw new Error("Firebase yüklenemedi.");
+      }
+    };
+
+    const initFirebase = async () => {
+      await ensureFirebase();
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      return {
+        auth: firebase.auth(),
+        db: firebase.firestore(),
+        storage: firebase.storage()
+      };
+    };
+
+    let auth;
+    let db;
+    let storage;
 
     const formatDateLabel = (value) => {
       if (!value) return "Tarih girilmedi";
@@ -266,7 +309,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         return;
       }
       listEl.innerHTML = items
-        .map((item, index) => {
+        .map((item) => {
           const dateLabel = formatDateLabel(item.eventDate || item.publishedAt);
           return `
             <div class="flex flex-wrap items-center gap-3 rounded-2xl border border-sand-200 bg-sand-50 p-3">
@@ -288,7 +331,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     };
 
     const loadAnnouncements = async () => {
-      const snapshot = await getDocs(collection(db, "announcements"));
+      const snapshot = await db.collection("announcements").get();
       announcements = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
       renderList();
     };
@@ -327,16 +370,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const target = items[targetIndex];
       const currentOrder = typeof current.order === "number" ? current.order : index;
       const targetOrder = typeof target.order === "number" ? target.order : targetIndex;
-      await updateDoc(doc(db, "announcements", current.id), { order: targetOrder });
-      await updateDoc(doc(db, "announcements", target.id), { order: currentOrder });
+      await db.collection("announcements").doc(current.id).update({ order: targetOrder });
+      await db.collection("announcements").doc(target.id).update({ order: currentOrder });
       await loadAnnouncements();
     };
 
     const seedAnnouncements = [
       {
         id: "sanliurfa-genel-kurul",
-        title: "Şanlıurfa Bal Üreticiler Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti.",
-        body: "Şanlıurfa Bal Üreticiler Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti.",
+        title: "Türkiye Bal Üreticileri Merkez Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti.",
+        body: "Türkiye Bal Üreticiler Merkez Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti.",
         coverUrl: "/assets/duyurular/0.jpeg",
         images: [
           { url: "/assets/duyurular/0.jpeg", name: "0.jpeg" },
@@ -435,76 +478,90 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
     ];
 
-    loginBtn?.addEventListener("click", async () => {
-      authError.classList.add("hidden");
-      showStatus("Giriş penceresi açılıyor...");
+    const ensureSeeded = async () => {
+      const probe = await db.collection("announcements").doc("sanliurfa-genel-kurul").get();
+      if (probe.exists) return;
+      const batch = db.batch();
+      seedAnnouncements.forEach((item) => {
+        const ref = db.collection("announcements").doc(item.id);
+        batch.set(
+          ref,
+          {
+            title: item.title,
+            body: item.body,
+            coverUrl: item.coverUrl,
+            images: item.images,
+            order: item.order,
+            eventDate: item.eventDate || "",
+            publishedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          },
+          { merge: true }
+        );
+      });
+      await batch.commit();
+    };
+
+    const bindAuth = async () => {
       try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        const firebaseRefs = await initFirebase();
+        auth = firebaseRefs.auth;
+        db = firebaseRefs.db;
+        storage = firebaseRefs.storage;
+        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
       } catch (error) {
-        const code = error?.code || "";
-        if (code === "auth/popup-blocked" || code === "auth/operation-not-supported-in-this-environment") {
-          showStatus("Popup engellendi. Yönlendirme ile giriş yapılıyor...");
-          await signInWithRedirect(auth, new GoogleAuthProvider());
+        showError("Firebase yüklenemedi. Lütfen ağ ve Firebase ayarlarını kontrol edin.");
+        return;
+      }
+
+      loginBtn?.addEventListener("click", async () => {
+        authError.classList.add("hidden");
+        showAuthStatus("Giriş penceresi açılıyor...");
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          await auth.signInWithPopup(provider);
+        } catch (error) {
+          const code = error?.code || "";
+          if (code === "auth/popup-blocked" || code === "auth/operation-not-supported-in-this-environment") {
+            showAuthStatus("Popup engellendi. Yönlendirme ile giriş yapılıyor...");
+            await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+            return;
+          }
+          showError(`Giriş başarısız: ${error?.message || code || "Bilinmeyen hata"}`);
+        }
+      });
+
+      auth.getRedirectResult().catch((error) => {
+        if (!error) return;
+        showError(`Giriş başarısız: ${error?.message || error?.code || "Bilinmeyen hata"}`);
+      });
+
+      logoutBtn?.addEventListener("click", async () => {
+        await auth.signOut();
+      });
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          authCard?.classList.remove("hidden");
+          adminPanel?.classList.add("hidden");
           return;
         }
-        showError(`Giriş başarısız: ${error?.message || code || "Bilinmeyen hata"}`);
-      }
-    });
-
-    getRedirectResult(auth).catch((error) => {
-      if (!error) return;
-      showError(`Giriş başarısız: ${error?.message || error?.code || "Bilinmeyen hata"}`);
-    });
-
-    logoutBtn?.addEventListener("click", async () => {
-      await signOut(auth);
-    });
+        if (user.email !== allowedEmail) {
+          showError("Bu hesap yetkili değil. Lütfen doğru hesapla giriş yapın.");
+          auth.signOut();
+          return;
+        }
+        authCard?.classList.add("hidden");
+        adminPanel?.classList.remove("hidden");
+        ensureSeeded().then(loadAnnouncements);
+      });
+    };
 
     resetBtn?.addEventListener("click", () => {
       resetForm();
     });
 
-    const ensureSeeded = async () => {
-      const probe = await getDoc(doc(db, "announcements", "sanliurfa-genel-kurul"));
-      if (probe.exists()) return;
-
-      await Promise.all(
-        seedAnnouncements.map((item) => {
-          return setDoc(
-            doc(db, "announcements", item.id),
-            {
-              title: item.title,
-              body: item.body,
-              coverUrl: item.coverUrl,
-              images: item.images,
-              order: item.order,
-              eventDate: item.eventDate || "",
-              publishedAt: serverTimestamp(),
-              createdAt: serverTimestamp()
-            },
-            { merge: true }
-          );
-        })
-      );
-    };
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        authCard?.classList.remove("hidden");
-        adminPanel?.classList.add("hidden");
-        return;
-      }
-      if (user.email !== allowedEmail) {
-        showError("Bu hesap yetkili değil. Lütfen doğru hesapla giriş yapın.");
-        signOut(auth);
-        return;
-      }
-      authCard?.classList.add("hidden");
-      adminPanel?.classList.remove("hidden");
-      await ensureSeeded();
-      await loadAnnouncements();
-    });
+    bindAuth();
 
     imagesInput?.addEventListener("change", (event) => {
       const files = Array.from(event.target.files || []);
@@ -535,11 +592,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       try {
         let docId = currentDocId;
         if (!docId) {
-          const docRef = await addDoc(collection(db, "announcements"), {
+          const docRef = await db.collection("announcements").add({
             title: titleInput.value.trim(),
             body: bodyInput.value.trim(),
             eventDate: eventDateInput.value || "",
-            createdAt: serverTimestamp(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             publishedAt: null,
             order: null
           });
@@ -549,15 +606,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         const uploads = await Promise.all(
           files.map(async (file) => {
-            const storageRef = ref(storage, `announcements/${docId}/${file.name}`);
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
+            const storageRef = storage.ref(`announcements/${docId}/${file.name}`);
+            await storageRef.put(file);
+            const url = await storageRef.getDownloadURL();
             return { url, path: storageRef.fullPath, name: file.name };
           })
         );
 
         uploadedImages = uploads;
-        await updateDoc(doc(db, "announcements", docId), {
+        await db.collection("announcements").doc(docId).update({
           images: uploads,
           coverUrl: uploads[selectedIndex]?.url || uploads[0].url,
           coverPath: uploads[selectedIndex]?.path || uploads[0].path
@@ -610,13 +667,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         if (!editMode) {
           const newOrder = getMinOrder() - 1;
-          updates.publishedAt = serverTimestamp();
+          updates.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
           updates.order = newOrder;
         } else if (!currentData?.publishedAt) {
-          updates.publishedAt = serverTimestamp();
+          updates.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
         }
 
-        await updateDoc(doc(db, "announcements", currentDocId), updates);
+        await db.collection("announcements").doc(currentDocId).update(updates);
 
         statusEl.textContent = editMode ? "Duyuru güncellendi." : "Duyuru yayınlandı.";
         resetForm();
@@ -649,11 +706,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             await Promise.all(
               item.images.map(async (img) => {
                 if (!img.path || img.path.startsWith("/")) return;
-                await deleteObject(ref(storage, img.path));
+                await storage.ref(img.path).delete();
               })
             );
           }
-          await deleteDoc(doc(db, "announcements", id));
+          await db.collection("announcements").doc(id).delete();
           await loadAnnouncements();
         } catch (error) {
           statusEl.textContent = "Silme işlemi başarısız.";
@@ -665,5 +722,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         await swapOrder(id, action);
       }
     });
+    })();
   </script>
 </BaseLayout>

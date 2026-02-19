@@ -15,58 +15,58 @@ const duyuruItems = [
   {
     src: '/assets/duyurular/0.jpeg',
     title:
-      'Şanlıurfa Bal Üreticiler Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti.',
+      'Türkiye Bal Üreticiler Merkez Birliğinde gerçekleştirilen genel kurulda Fırat Çenberlitaş güven tazeleyerek görevine devam etti.',
     date: '2026',
-    href: '/duyurular/sanliurfa-genel-kurul-firat-cenberlitas/'
+    href: '/duyurular/detay?id=sanliurfa-genel-kurul'
   },
   {
     src: '/assets/duyurular/1.1.jpeg',
     title:
       'Bitlis ve Hizan birlik başkanlarımızla birlikte gerçekleştirdiğimiz Bitlis Valimiz Sayın Ahmet Karakaya ziyareti.',
     date: '18 Şubat 2026',
-    href: '/duyurular/bitlis-valisi-ziyareti/'
+    href: '/duyurular/detay?id=bitlis-valisi-ziyareti'
   },
   {
     src: '/assets/duyurular/2.jpg',
     title:
       'Diyarbakır Bal Üreticileri Birliğimizi ziyaret ederek, önceki dönem başkanlarımızdan merhum Ali Rıza Demir’in oğullarına taziyelerimizi ilettik.',
     date: '2026',
-    href: '/duyurular/diyarbakir-birligi-taziye-ziyareti/'
+    href: '/duyurular/detay?id=diyarbakir-birligi-taziye-ziyareti'
   },
   {
     src: '/assets/duyurular/3.jpg',
     title:
       'Yönetim kurulu olarak; Şanlıurfa Arıcılar Birliği Başkanımızın kıymetli annesinin vefatı dolayısıyla kendisini ziyaret ederek başsağlığı dileklerimizi ilettik.',
     date: '2026',
-    href: '/duyurular/sanliurfa-bassagligi-ziyareti/'
+    href: '/duyurular/detay?id=sanliurfa-bassagligi-ziyareti'
   },
   {
     src: '/assets/duyurular/4.jpg',
     title:
       'Ankara’da Teşkilatlanma Daire Başkanı Sayın Ahmet Ünsal ile il bazlı yapılanma konusunda son derece olumlu görüşmeler gerçekleştirilmiştir. Bulundukları illerde ilçe bazlı kurulmuş birliklerimizden, mali genel kurullarını yapmadan önce il birliği statüsüne geçmeyi düşünenler varsa, çok ivedi bir şekilde Merkez Birliğimiz ile iletişime geçmeleri gerekmektedir. İl bazlı yapılanma sürecinde birkaç işlemin tamamlanmasının ardından il bazlı statüye geçiş mümkün olacaktır. Birliklerimizin daha güçlü ve kurumsal bir yapıya kavuşabilmesi adına, ilçe bazlı değil il bazlı teşkilatlanma büyük önem arz etmektedir.',
     date: '2026',
-    href: '/duyurular/ankara-teskilatlanma-gorusmesi/'
+    href: '/duyurular/detay?id=ankara-teskilatlanma-gorusmesi'
   },
   {
     src: '/assets/duyurular/5.jpg',
     title:
       'Türk Patent ve Marka Kurumu Başkanı Prof. Dr. Muhammed Zeki Durak’ı, Merkez Birliğimiz olarak makamında ziyaret ettik. Bal ve arı ürünlerimizin markalaşması ile coğrafi işaretler konularında verimli bir görüşme gerçekleştirdik.',
     date: '2026',
-    href: '/duyurular/turk-patent-ziyareti/'
+    href: '/duyurular/detay?id=turk-patent-ziyareti'
   },
   {
     src: '/assets/duyurular/7.jpeg',
     title:
       'Bal üreticileri birliklerimiz her geçen gün daha kurumsal bir yapıya kavuşuyor ve büyümeye devam ediyor. Gaziantep Bal Üreticileri Birliği Başkanımız Mehmet Uçar’ın öncülüğünde, bakanlık tarafından belgelendirilen eğitim programı kapsamında; Merkez Birliğimiz Yönetim Kurulu Başkan Yardımcımız Mehmet Ali Kutlu hocamızın eğitmen olarak yer aldığı proje doğrultusunda belgelendirme töreni gerçekleştirilmiş ve başarılı arıcılarımıza bakanlık onaylı ana arı sertifikaları takdim edilmiştir. Emeği geçen başta Gaziantep Birliğimiz olmak üzere, kıymetli hocamıza ve tüm paydaşlara teşekkür eder, sertifika alan arıcılarımızı tebrik ederiz',
     date: '2026',
-    href: '/duyurular/gaziantep-sertifika-toreni/'
+    href: '/duyurular/detay?id=gaziantep-sertifika-toreni'
   },
   {
     src: '/assets/duyurular/8.jpeg',
     title:
       'Türkiye Arı Yetiştiricileri Merkez Birliği Genel Başkanı Ali Demir ve kıymetli yönetim kurulu bugün Merkez Birliğimize hayırlı olsun ziyaretinde bulunmuştur.',
     date: '2026',
-    href: '/duyurular/ari-yetistiricileri-birligi-hayirli-olsun/'
+    href: '/duyurular/detay?id=ari-yetistiricileri-birligi-hayirli-olsun'
   }
 ];
 
@@ -148,22 +148,46 @@ const duyuruItems = [
     </div>
   </section>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <script is:inline>
+    (() => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
+        authDomain: "merkez-birligi.firebaseapp.com",
+        projectId: "merkez-birligi",
+        storageBucket: "merkez-birligi.firebasestorage.app",
+        messagingSenderId: "1017642940775",
+        appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
+        measurementId: "G-LT1MWENXB7"
+      };
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c",
-      authDomain: "merkez-birligi.firebaseapp.com",
-      projectId: "merkez-birligi",
-      storageBucket: "merkez-birligi.firebasestorage.app",
-      messagingSenderId: "1017642940775",
-      appId: "1:1017642940775:web:7c7ace1b2cba16a6fdd7c2",
-      measurementId: "G-LT1MWENXB7"
-    };
+      const loadScript = (src) =>
+        new Promise((resolve, reject) => {
+          const existing = document.querySelector(`script[src="${src}"]`);
+          if (existing) {
+            if (existing.dataset.loaded === "true") return resolve();
+            existing.addEventListener("load", () => resolve(), { once: true });
+            existing.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)), { once: true });
+            return;
+          }
+          const script = document.createElement("script");
+          script.src = src;
+          script.async = true;
+          script.addEventListener("load", () => {
+            script.dataset.loaded = "true";
+            resolve();
+          });
+          script.addEventListener("error", () => reject(new Error(`Firebase yüklenemedi: ${src}`)));
+          document.head.appendChild(script);
+        });
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+      const ensureFirebase = async () => {
+        if (window.firebase) return;
+        await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
+        await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
+        if (!window.firebase) {
+          throw new Error("Firebase yüklenemedi.");
+        }
+      };
 
     const formatDate = (value) => {
       if (!value) return "2026";
@@ -229,14 +253,19 @@ const duyuruItems = [
 
     const loadDuyurular = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "announcements"));
+        await ensureFirebase();
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const snapshot = await db.collection("announcements").get();
         const items = snapshot.docs
-          .map((doc) => {
-            const data = doc.data() || {};
+          .map((docSnap) => {
+            const data = docSnap.data() || {};
             const coverUrl = data.coverUrl || data.images?.[0]?.url;
-            if (!data.title || !coverUrl || !data.publishedAt) return null;
+            if (!data.title || !coverUrl) return null;
             return {
-              id: doc.id,
+              id: docSnap.id,
               title: data.title,
               coverUrl,
               dateLabel: formatDate(data.eventDate || data.publishedAt || data.createdAt),
@@ -265,5 +294,6 @@ const duyuruItems = [
 
     applyFilter();
     loadDuyurular();
+  })();
   </script>
 </BaseLayout>
