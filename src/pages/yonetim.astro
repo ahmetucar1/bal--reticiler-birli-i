@@ -251,6 +251,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       statusEl.textContent = message;
     };
 
+    const showBoardStatus = (message) => {
+      if (boardStatus) boardStatus.textContent = message || "";
+    };
+
     const initFirebase = () => {
       if (!window.firebase) {
         throw new Error("Firebase yüklenemedi.");
@@ -516,7 +520,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         };
         resetBoardForm();
       } catch (error) {
-        if (boardStatus) boardStatus.textContent = "Yönetim kurulu verisi okunamadı.";
+        const code = error?.code || "";
+        const message = error?.message || "Yönetim kurulu verisi okunamadı.";
+        if (code === "permission-denied") {
+          showBoardStatus("Yönetim kurulu verisi okunamadı (yetki yok). Firestore kurallarını kontrol edin.");
+        } else {
+          showBoardStatus(`Yönetim kurulu verisi okunamadı: ${message}`);
+        }
       }
     };
 
@@ -907,13 +917,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         authCard?.classList.add("hidden");
         adminPanel?.classList.remove("hidden");
         ensureSeeded().then(loadAnnouncements);
-        ensureBoardSeeded()
-          .catch(() => {
-            if (boardStatus) boardStatus.textContent = "Yönetim kurulu yüklenemedi.";
-          })
-          .finally(() => {
-            loadBoard();
-          });
+        loadBoard();
+        ensureBoardSeeded().catch((error) => {
+          const code = error?.code || "";
+          if (code === "permission-denied") {
+            showBoardStatus("Yönetim kurulu verisi yazılamadı (yetki yok). Firestore kurallarını kontrol edin.");
+            return;
+          }
+          if (error) {
+            showBoardStatus(`Yönetim kurulu yüklenemedi: ${error?.message || code}`);
+          }
+        });
       });
     };
 
