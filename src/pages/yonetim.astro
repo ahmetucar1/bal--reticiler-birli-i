@@ -109,6 +109,74 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h3 class="text-lg font-semibold text-slate-900">Mevcut duyurular</h3>
           <div id="announcement-list" class="space-y-3"></div>
         </div>
+
+        <div class="mt-10 space-y-4 border-t border-sand-200 pt-8">
+          <div class="space-y-1">
+            <h3 class="text-lg font-semibold text-slate-900">Yönetim Kurulu</h3>
+            <p class="text-sm text-slate-600">Yönetim kurulu üyelerinin fotoğraf, isim ve görevlerini güncelleyin.</p>
+          </div>
+
+          <form id="board-form" class="space-y-5">
+            <div class="rounded-2xl border border-sand-200 bg-sand-50 p-4 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-sm font-semibold text-slate-900">Yönetim Kurulu Başkanı</h4>
+                <span class="text-xs text-slate-500">Vitrin kartı</span>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-[140px,1fr]">
+                <div class="space-y-2">
+                  <div id="board-lead-preview" class="h-28 w-24 overflow-hidden rounded-xl border border-sand-200 bg-white shadow-sm"></div>
+                  <input id="board-lead-photo" type="file" accept="image/*" class="block w-full text-xs text-slate-600" />
+                </div>
+                <div class="grid gap-3">
+                  <input
+                    id="board-lead-name"
+                    name="board-lead-name"
+                    class="w-full rounded-xl border border-sand-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-pine-300"
+                    placeholder="Ad soyad"
+                  />
+                  <input
+                    id="board-lead-role"
+                    name="board-lead-role"
+                    class="w-full rounded-xl border border-sand-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-pine-300"
+                    placeholder="Görev"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <h4 class="text-sm font-semibold text-slate-900">Başkan Yardımcıları</h4>
+                <button
+                  type="button"
+                  id="board-add-member"
+                  class="inline-flex items-center justify-center rounded-full border border-pine-600 px-4 py-2 text-xs font-semibold text-pine-700 transition hover:bg-pine-50"
+                >
+                  Üye ekle
+                </button>
+              </div>
+              <div id="board-members" class="space-y-3"></div>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="submit"
+                id="board-save"
+                class="inline-flex items-center justify-center rounded-full bg-pine-600 px-5 py-2 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-pine-700"
+              >
+                Kaydet
+              </button>
+              <button
+                type="button"
+                id="board-reset"
+                class="inline-flex items-center justify-center rounded-full border border-sand-200 px-5 py-2 text-sm font-semibold text-slate-600 hover:bg-sand-50"
+              >
+                Sıfırla
+              </button>
+            </div>
+            <p id="board-status" class="text-sm text-slate-600"></p>
+          </form>
+        </div>
       </div>
     </div>
   </section>
@@ -147,6 +215,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const uploadBtn = document.getElementById("upload");
     const publishBtn = document.getElementById("publish");
     const statusEl = document.getElementById("status");
+    const boardForm = document.getElementById("board-form");
+    const boardStatus = document.getElementById("board-status");
+    const leadNameInput = document.getElementById("board-lead-name");
+    const leadRoleInput = document.getElementById("board-lead-role");
+    const leadPhotoInput = document.getElementById("board-lead-photo");
+    const leadPreview = document.getElementById("board-lead-preview");
+    const membersWrap = document.getElementById("board-members");
+    const addMemberBtn = document.getElementById("board-add-member");
+    const saveBoardBtn = document.getElementById("board-save");
+    const resetBoardBtn = document.getElementById("board-reset");
 
     let selectedIndex = 0;
     let uploadedImages = [];
@@ -154,6 +232,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let currentData = null;
     let editMode = false;
     let announcements = [];
+    let boardSnapshot = null;
+    let memberDrafts = [];
+    let leadFile = null;
+    let leadPreviewUrl = "";
 
     const showError = (message) => {
       authError.textContent = message;
@@ -221,6 +303,141 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       uploadBtn.disabled = false;
     };
 
+    const escapeHtml = (value) => {
+      if (!value) return "";
+      return String(value).replace(/[&<>"']/g, (char) => {
+        switch (char) {
+          case "&":
+            return "&amp;";
+          case "<":
+            return "&lt;";
+          case ">":
+            return "&gt;";
+          case "\"":
+            return "&quot;";
+          case "'":
+            return "&#39;";
+          default:
+            return char;
+        }
+      });
+    };
+
+    const getInitials = (name) => {
+      if (!name) return "";
+      const parts = name.trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return "";
+      return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join("");
+    };
+
+    const renderLeadPreview = (photoUrl, name) => {
+      if (!leadPreview) return;
+      const safeName = escapeHtml(name || "");
+      if (photoUrl) {
+        leadPreview.innerHTML = `<img src="${escapeHtml(photoUrl)}" alt="${safeName}" class="h-full w-full object-cover" />`;
+        return;
+      }
+      const initials = getInitials(name) || "YK";
+      leadPreview.innerHTML = `
+        <div class="grid h-full w-full place-items-center bg-sand-100 text-xs font-semibold text-slate-500">
+          ${escapeHtml(initials)}
+        </div>
+      `;
+    };
+
+    const createMemberDraft = (member = {}) => {
+      const id = member.id || (crypto.randomUUID?.() ?? `member-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+      return {
+        id,
+        name: member.name || "",
+        role: member.role || "",
+        photoUrl: member.photoUrl || "",
+        photoPath: member.photoPath || "",
+        file: null,
+        previewUrl: ""
+      };
+    };
+
+    const renderMembers = () => {
+      if (!membersWrap) return;
+      if (!memberDrafts.length) {
+        membersWrap.innerHTML = "<p class=\"text-xs text-slate-500\">Henüz üye eklenmedi.</p>";
+        return;
+      }
+      membersWrap.innerHTML = memberDrafts
+        .map((member) => {
+          const initials = getInitials(member.name) || "YK";
+          const resolvedPhoto = member.previewUrl || member.photoUrl;
+          const photoHtml = resolvedPhoto
+            ? `<img src="${escapeHtml(resolvedPhoto)}" alt="${escapeHtml(member.name)}" class="h-full w-full object-cover" data-member-photo />`
+            : `<div class="grid h-full w-full place-items-center bg-sand-100 text-xs font-semibold text-slate-500" data-member-placeholder>${escapeHtml(initials)}</div>`;
+          return `
+            <div class="flex flex-wrap items-center gap-3 rounded-2xl border border-sand-200 bg-white p-3" data-member-id="${member.id}">
+              <div class="flex items-center gap-3">
+                <div class="h-16 w-14 overflow-hidden rounded-lg border border-sand-200 bg-white shadow-sm" data-photo-box>
+                  ${photoHtml}
+                </div>
+                <input type="file" accept="image/*" data-field="photo" class="block w-full text-[11px] text-slate-600" />
+              </div>
+              <input
+                type="text"
+                data-field="name"
+                value="${escapeHtml(member.name)}"
+                placeholder="Ad soyad"
+                class="min-w-[160px] flex-1 rounded-xl border border-sand-200 bg-sand-50 px-3 py-2 text-sm outline-none transition focus:border-pine-300 focus:bg-white"
+              />
+              <input
+                type="text"
+                data-field="role"
+                value="${escapeHtml(member.role)}"
+                placeholder="Görev"
+                class="min-w-[160px] flex-1 rounded-xl border border-sand-200 bg-sand-50 px-3 py-2 text-sm outline-none transition focus:border-pine-300 focus:bg-white"
+              />
+              <button
+                type="button"
+                data-action="remove"
+                class="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600"
+              >
+                Kaldır
+              </button>
+            </div>
+          `;
+        })
+        .join("");
+    };
+
+    const resetBoardForm = () => {
+      if (leadPreviewUrl) {
+        URL.revokeObjectURL(leadPreviewUrl);
+        leadPreviewUrl = "";
+      }
+      memberDrafts.forEach((member) => {
+        if (member.previewUrl) {
+          URL.revokeObjectURL(member.previewUrl);
+        }
+      });
+      if (!boardSnapshot) {
+        if (leadNameInput) leadNameInput.value = "";
+        if (leadRoleInput) leadRoleInput.value = "";
+        if (leadPhotoInput) leadPhotoInput.value = "";
+        leadFile = null;
+        memberDrafts = [];
+        renderLeadPreview("", "");
+        renderMembers();
+        if (boardStatus) boardStatus.textContent = "";
+        return;
+      }
+      const lead = boardSnapshot.lead || {};
+      if (leadNameInput) leadNameInput.value = lead.name || "";
+      if (leadRoleInput) leadRoleInput.value = lead.role || "";
+      if (leadPhotoInput) leadPhotoInput.value = "";
+      leadFile = null;
+      renderLeadPreview(lead.photoUrl || "", lead.name || "");
+      memberDrafts = (Array.isArray(boardSnapshot.members) ? boardSnapshot.members : []).map((member) => createMemberDraft(member));
+      renderMembers();
+      if (boardStatus) boardStatus.textContent = "";
+    };
+
     const buildPreviewFromFiles = (files) => {
       preview.innerHTML = "";
       if (!files.length) return;
@@ -263,6 +480,167 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         });
         preview.appendChild(wrapper);
       });
+    };
+
+    const sanitizeFileName = (name) => {
+      if (!name) return "photo";
+      return name
+        .normalize("NFD")
+        .replace(/[^a-zA-Z0-9._-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 120);
+    };
+
+    const uploadBoardPhoto = async (file, pathPrefix) => {
+      const safeName = sanitizeFileName(file.name || "photo");
+      const storageRef = storage.ref(`${pathPrefix}/${Date.now()}-${safeName}`);
+      await storageRef.put(file);
+      const url = await storageRef.getDownloadURL();
+      return { url, path: storageRef.fullPath };
+    };
+
+    const loadBoard = async () => {
+      if (!db) return;
+      try {
+        const snapshot = await db.collection("site").doc("board").get();
+        if (!snapshot.exists) {
+          boardSnapshot = null;
+          resetBoardForm();
+          return;
+        }
+        const data = snapshot.data() || {};
+        boardSnapshot = {
+          lead: data.lead || {},
+          members: Array.isArray(data.members) ? data.members : []
+        };
+        resetBoardForm();
+      } catch (error) {
+        if (boardStatus) boardStatus.textContent = "Yönetim kurulu verisi okunamadı.";
+      }
+    };
+
+    const ensureBoardSeeded = async () => {
+      const ref = db.collection("site").doc("board");
+      const snapshot = await ref.get();
+      if (snapshot.exists) return;
+      const seed = {
+        lead: {
+          name: "Fırat Çenberlitaş",
+          role: "Yönetim Kurulu Başkanı",
+          photoUrl: "/assets/yonetim-kurulu/firat-cenberlitas.png",
+          photoPath: ""
+        },
+        members: [
+          {
+            name: "Sinan Uçar",
+            role: "Başkan Yardımcısı",
+            photoUrl: "/assets/yonetim-kurulu/sinan-ucar.webp",
+            photoPath: ""
+          },
+          {
+            name: "Hasan Akyol",
+            role: "Başkan Yardımcısı",
+            photoUrl: "/assets/yonetim-kurulu/hasan-akyol.webp",
+            photoPath: ""
+          },
+          {
+            name: "Mehmet Ali Kutlu",
+            role: "Başkan Yardımcısı",
+            photoUrl: "/assets/yonetim-kurulu/mehmet-ali-kutlu.jpg",
+            photoPath: ""
+          },
+          {
+            name: "İsmail Şar",
+            role: "Başkan Yardımcısı",
+            photoUrl: "/assets/yonetim-kurulu/ismail-sar.jpg",
+            photoPath: ""
+          }
+        ],
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await ref.set(seed, { merge: true });
+    };
+
+    const saveBoard = async () => {
+      if (!db || !storage) return;
+      if (!leadNameInput?.value.trim() || !leadRoleInput?.value.trim()) {
+        if (boardStatus) boardStatus.textContent = "Başkan adı ve görevi girin.";
+        return;
+      }
+      const existingLead = boardSnapshot?.lead || {};
+      let leadPhotoUrl = existingLead.photoUrl || "";
+      let leadPhotoPath = existingLead.photoPath || "";
+
+      if (leadFile) {
+        const upload = await uploadBoardPhoto(leadFile, "board/lead");
+        leadPhotoUrl = upload.url;
+        leadPhotoPath = upload.path;
+      }
+
+      if (!leadPhotoUrl) {
+        if (boardStatus) boardStatus.textContent = "Başkan fotoğrafını seçin.";
+        return;
+      }
+
+      const trimmedMembers = memberDrafts.map((member) => ({
+        ...member,
+        name: member.name.trim(),
+        role: member.role.trim()
+      }));
+
+      const invalidMember = trimmedMembers.find((member) => !member.name || !member.role);
+      if (invalidMember) {
+        if (boardStatus) boardStatus.textContent = "Tüm üyeler için isim ve görev girin.";
+        return;
+      }
+
+      if (boardStatus) boardStatus.textContent = "Yönetim kurulu güncelleniyor...";
+      if (saveBoardBtn) saveBoardBtn.disabled = true;
+
+      try {
+        const memberPayloads = await Promise.all(
+          trimmedMembers.map(async (member) => {
+            let photoUrl = member.photoUrl || "";
+            let photoPath = member.photoPath || "";
+            if (member.file) {
+              const upload = await uploadBoardPhoto(member.file, `board/members/${member.id}`);
+              photoUrl = upload.url;
+              photoPath = upload.path;
+            }
+            if (!photoUrl) {
+              throw new Error("Üye fotoğrafı eksik.");
+            }
+            return {
+              name: member.name,
+              role: member.role,
+              photoUrl,
+              photoPath
+            };
+          })
+        );
+
+        const payload = {
+          lead: {
+            name: leadNameInput.value.trim(),
+            role: leadRoleInput.value.trim(),
+            photoUrl: leadPhotoUrl,
+            photoPath: leadPhotoPath
+          },
+          members: memberPayloads,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection("site").doc("board").set(payload, { merge: true });
+        boardSnapshot = payload;
+        resetBoardForm();
+        if (boardStatus) boardStatus.textContent = "Yönetim kurulu kaydedildi.";
+      } catch (error) {
+        const message = error?.message || error?.code || "Kaydetme sırasında hata oluştu.";
+        if (boardStatus) boardStatus.textContent = `Kaydetme sırasında hata oluştu: ${message}`;
+      } finally {
+        if (saveBoardBtn) saveBoardBtn.disabled = false;
+      }
     };
 
     const getSortedAnnouncements = () => {
@@ -529,11 +907,115 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         authCard?.classList.add("hidden");
         adminPanel?.classList.remove("hidden");
         ensureSeeded().then(loadAnnouncements);
+        ensureBoardSeeded()
+          .then(loadBoard)
+          .catch(() => {
+            if (boardStatus) boardStatus.textContent = "Yönetim kurulu yüklenemedi.";
+          });
       });
     };
 
     resetBtn?.addEventListener("click", () => {
       resetForm();
+    });
+
+    resetBoardBtn?.addEventListener("click", () => {
+      resetBoardForm();
+    });
+
+    leadNameInput?.addEventListener("input", () => {
+      if (leadFile) return;
+      const photoUrl = boardSnapshot?.lead?.photoUrl || "";
+      renderLeadPreview(photoUrl, leadNameInput.value);
+    });
+
+    leadPhotoInput?.addEventListener("change", (event) => {
+      const file = event.target.files?.[0] || null;
+      if (leadPreviewUrl) {
+        URL.revokeObjectURL(leadPreviewUrl);
+        leadPreviewUrl = "";
+      }
+      leadFile = file;
+      if (!file) {
+        const photoUrl = boardSnapshot?.lead?.photoUrl || "";
+        renderLeadPreview(photoUrl, leadNameInput?.value || "");
+        return;
+      }
+      leadPreviewUrl = URL.createObjectURL(file);
+      renderLeadPreview(leadPreviewUrl, leadNameInput?.value || "");
+    });
+
+    addMemberBtn?.addEventListener("click", () => {
+      memberDrafts = [...memberDrafts, createMemberDraft()];
+      renderMembers();
+    });
+
+    membersWrap?.addEventListener("input", (event) => {
+      const target = event.target;
+      const row = target.closest("[data-member-id]");
+      if (!row) return;
+      const member = memberDrafts.find((entry) => entry.id === row.dataset.memberId);
+      if (!member) return;
+      const field = target.dataset.field;
+      if (!field) return;
+      if (field === "name") {
+        member.name = target.value;
+        const placeholder = row.querySelector("[data-member-placeholder]");
+        if (placeholder && !member.photoUrl && !member.file) {
+          placeholder.textContent = getInitials(member.name) || "YK";
+        }
+      }
+      if (field === "role") {
+        member.role = target.value;
+      }
+    });
+
+    membersWrap?.addEventListener("change", (event) => {
+      const target = event.target;
+      const row = target.closest("[data-member-id]");
+      if (!row) return;
+      const member = memberDrafts.find((entry) => entry.id === row.dataset.memberId);
+      if (!member) return;
+      const field = target.dataset.field;
+      if (field !== "photo") return;
+      const file = target.files?.[0] || null;
+      if (member.previewUrl) {
+        URL.revokeObjectURL(member.previewUrl);
+        member.previewUrl = "";
+      }
+      member.file = file;
+      const box = row.querySelector("[data-photo-box]");
+      if (!box) return;
+      if (file) {
+        member.previewUrl = URL.createObjectURL(file);
+        box.innerHTML = `<img src="${escapeHtml(member.previewUrl)}" alt="${escapeHtml(member.name)}" class="h-full w-full object-cover" data-member-photo />`;
+        return;
+      }
+      if (member.photoUrl) {
+        box.innerHTML = `<img src="${escapeHtml(member.photoUrl)}" alt="${escapeHtml(member.name)}" class="h-full w-full object-cover" data-member-photo />`;
+      } else {
+        const initials = getInitials(member.name) || "YK";
+        box.innerHTML = `<div class="grid h-full w-full place-items-center bg-sand-100 text-xs font-semibold text-slate-500" data-member-placeholder>${escapeHtml(initials)}</div>`;
+      }
+    });
+
+    membersWrap?.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button || button.dataset.action !== "remove") return;
+      const row = button.closest("[data-member-id]");
+      if (!row) return;
+      const targetId = row.dataset.memberId;
+      const targetMember = memberDrafts.find((entry) => entry.id === targetId);
+      if (targetMember?.previewUrl) {
+        URL.revokeObjectURL(targetMember.previewUrl);
+      }
+      memberDrafts = memberDrafts.filter((entry) => entry.id !== targetId);
+      renderMembers();
+    });
+
+    boardForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveBoard();
     });
 
     window.addEventListener('load', bindAuth);

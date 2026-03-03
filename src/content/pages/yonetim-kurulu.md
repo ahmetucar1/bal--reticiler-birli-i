@@ -7,7 +7,7 @@ order: 2
 
 ## Kurul bileşimi
 
-<div class="yk-wrap">
+<div class="yk-wrap" data-board-root>
   <div class="yk-lead yk-lead-centered">
     <div class="yk-lead-photo">
       <img src="/assets/yonetim-kurulu/firat-cenberlitas.png" alt="Fırat Çenberlitaş" loading="lazy" decoding="async" />
@@ -58,6 +58,122 @@ order: 2
     </figure>
   </div>
 </div>
+
+<script>
+  (() => {
+    const apiKey = "AIzaSyAl_TPmEOlbliY3CDig7p-VGbSEVoFxl2c";
+    const apiBase = "https://firestore.googleapis.com/v1/projects/merkez-birligi/databases/(default)/documents";
+    const root = document.querySelector("[data-board-root]");
+    if (!root) return;
+
+    const escapeHtml = (value) => {
+      if (!value) return "";
+      return String(value).replace(/[&<>"']/g, (char) => {
+        switch (char) {
+          case "&":
+            return "&amp;";
+          case "<":
+            return "&lt;";
+          case ">":
+            return "&gt;";
+          case "\"":
+            return "&quot;";
+          case "'":
+            return "&#39;";
+          default:
+            return char;
+        }
+      });
+    };
+
+    const getInitials = (name) => {
+      if (!name) return "";
+      const parts = name.trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return "";
+      return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join("");
+    };
+
+    const getString = (field) => field?.stringValue ?? "";
+    const getMapFields = (field) => field?.mapValue?.fields || {};
+    const getArrayValues = (field) => field?.arrayValue?.values || [];
+
+    const renderBoard = (lead, members) => {
+      const leadInitials = getInitials(lead.name) || "YK";
+      const leadPhoto = lead.photoUrl
+        ? `<img src="${escapeHtml(lead.photoUrl)}" alt="${escapeHtml(lead.name)}" loading="lazy" decoding="async" />`
+        : `<div class="yk-photo yk-placeholder">${escapeHtml(leadInitials)}</div>`;
+      const memberCards = members
+        .map((member) => {
+          const initials = getInitials(member.name) || "YK";
+          const hasPhoto = Boolean(member.photoUrl);
+          const photoInner = hasPhoto
+            ? `<img src="${escapeHtml(member.photoUrl)}" alt="${escapeHtml(member.name)}" loading="lazy" decoding="async" />`
+            : escapeHtml(initials);
+          const photoClass = hasPhoto ? "yk-photo" : "yk-photo yk-placeholder";
+          return `
+            <figure class="yk-card">
+              <div class="${photoClass}">
+                ${photoInner}
+              </div>
+              <figcaption>
+                <p class="yk-name">${escapeHtml(member.name)}</p>
+                <p class="yk-role">${escapeHtml(member.role)}</p>
+              </figcaption>
+            </figure>
+          `;
+        })
+        .join("");
+
+      root.innerHTML = `
+        <div class="yk-lead yk-lead-centered">
+          <div class="yk-lead-photo">
+            ${leadPhoto}
+          </div>
+          <div class="yk-lead-text">
+            <p class="yk-eyebrow">${escapeHtml(lead.role || "Yönetim Kurulu Başkanı")}</p>
+            <h3>${escapeHtml(lead.name)}</h3>
+          </div>
+        </div>
+        <div class="yk-assist-title">Başkan Yardımcıları</div>
+        <div class="yk-assist-grid">
+          ${memberCards}
+        </div>
+      `;
+    };
+
+    const loadBoard = async () => {
+      try {
+        const response = await fetch(`${apiBase}/site/board?key=${apiKey}`);
+        if (!response.ok) return;
+        const payload = await response.json();
+        const fields = payload.fields || {};
+        const leadFields = getMapFields(fields.lead);
+        const lead = {
+          name: getString(leadFields.name),
+          role: getString(leadFields.role),
+          photoUrl: getString(leadFields.photoUrl)
+        };
+        const members = getArrayValues(fields.members)
+          .map((entry) => {
+            const memberFields = getMapFields(entry);
+            return {
+              name: getString(memberFields.name),
+              role: getString(memberFields.role),
+              photoUrl: getString(memberFields.photoUrl)
+            };
+          })
+          .filter((member) => member.name && member.role);
+
+        if (!lead.name) return;
+        renderBoard(lead, members);
+      } catch (error) {
+        // fallback to static content
+      }
+    };
+
+    window.addEventListener("load", loadBoard);
+  })();
+</script>
 
 <style>
   .yk-wrap {
