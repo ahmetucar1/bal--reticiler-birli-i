@@ -908,9 +908,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         adminPanel?.classList.remove("hidden");
         ensureSeeded().then(loadAnnouncements);
         ensureBoardSeeded()
-          .then(loadBoard)
           .catch(() => {
             if (boardStatus) boardStatus.textContent = "Yönetim kurulu yüklenemedi.";
+          })
+          .finally(() => {
+            loadBoard();
           });
       });
     };
