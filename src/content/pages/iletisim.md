@@ -8,6 +8,7 @@ order: 4
 ## Hızlı erişim
 - Telefon: **+90 530 933 36 01**  
 - E-posta: **merbalbir@gmail.com**  
+- KEP: **balureticilerimerkezbirligi@hs01.kep.tr**  
 
 ## Yazışma ve randevu
 Basın, protokol ve resmi yazışmalar için e-posta üzerinden konu başlığını belirterek iletin. Teknik sorular, destek programı ve saha ziyaret talepleriniz için en az iki iş günü önceden randevu oluşturunuz.
