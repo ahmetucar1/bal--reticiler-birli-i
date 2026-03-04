@@ -33,9 +33,9 @@ export const siteConfig = {
   },
   socials: {
     linkedin: '',
-    instagram: 'https://www.instagram.com/merkez_bal_ureticiler_birligi/',
+    instagram: 'https://www.instagram.com/balureticilerimerkezbirligi/?__d=11',
     youtube: '',
     twitter: 'https://x.com/bal_birligi',
-    facebook: 'https://www.facebook.com/turkiyebalbirlik/?locale=tr_TR'
+    facebook: 'https://www.facebook.com/people/Bal-Üreticileri-Merkez-Birliği/61588419394159/'
   }
 };

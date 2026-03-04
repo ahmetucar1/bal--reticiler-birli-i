@@ -94,10 +94,20 @@ import { siteConfig } from '../config/site';
             <div class="pt-1 space-y-1">
               <p class="contact-label text-pine-700">Sosyal medya</p>
               <div class="flex flex-wrap gap-2">
-                {siteConfig.socials.instagram && <a href={siteConfig.socials.instagram} class="social-pill" aria-label="Instagram">IG</a>}
+                {siteConfig.socials.instagram && (
+                  <a href={siteConfig.socials.instagram} class="social-pill social-ig" aria-label="Instagram">
+                    <span class="social-mark">IG</span>
+                    <span class="social-text">Instagram</span>
+                  </a>
+                )}
                 {siteConfig.socials.twitter && <a href={siteConfig.socials.twitter} class="social-pill" aria-label="X">X</a>}
                 {siteConfig.socials.linkedin && <a href={siteConfig.socials.linkedin} class="social-pill" aria-label="LinkedIn">in</a>}
-                {siteConfig.socials.facebook && <a href={siteConfig.socials.facebook} class="social-pill" aria-label="Facebook">f</a>}
+                {siteConfig.socials.facebook && (
+                  <a href={siteConfig.socials.facebook} class="social-pill social-fb" aria-label="Facebook">
+                    <span class="social-mark">FB</span>
+                    <span class="social-text">Facebook</span>
+                  </a>
+                )}
                 {siteConfig.socials.youtube && <a href={siteConfig.socials.youtube} class="social-pill" aria-label="YouTube">YT</a>}
               </div>
             </div>
@@ -167,8 +177,9 @@ import { siteConfig } from '../config/site';
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     min-width: 34px;
-    padding: 0.35rem 0.55rem;
+    padding: 0.4rem 0.7rem;
     border-radius: 999px;
     border: 1px solid #d6dfe6;
     background: #ffffff;
@@ -183,5 +194,56 @@ import { siteConfig } from '../config/site';
     transform: translateY(-1px);
     border-color: #0d7a4c;
     box-shadow: 0 8px 18px rgba(12, 41, 60, 0.1);
+  }
+
+  .social-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    background: #0f172a;
+  }
+
+  .social-text {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .social-ig {
+    border-color: rgba(224, 102, 139, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 239, 247, 0.9));
+  }
+
+  .social-ig .social-mark {
+    background: linear-gradient(135deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    box-shadow: 0 8px 18px rgba(214, 41, 118, 0.28);
+  }
+
+  .social-ig:hover {
+    border-color: rgba(214, 41, 118, 0.5);
+    box-shadow: 0 10px 24px rgba(214, 41, 118, 0.18);
+  }
+
+  .social-fb {
+    border-color: rgba(24, 119, 242, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(232, 242, 255, 0.9));
+  }
+
+  .social-fb .social-mark {
+    background: #1877f2;
+    box-shadow: 0 8px 18px rgba(24, 119, 242, 0.28);
+  }
+
+  .social-fb:hover {
+    border-color: rgba(24, 119, 242, 0.5);
+    box-shadow: 0 10px 24px rgba(24, 119, 242, 0.18);
   }
 </style>
