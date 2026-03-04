@@ -100,7 +100,12 @@ import { siteConfig } from '../config/site';
                     <span class="social-text">Instagram</span>
                   </a>
                 )}
-                {siteConfig.socials.twitter && <a href={siteConfig.socials.twitter} class="social-pill" aria-label="X">X</a>}
+                {siteConfig.socials.twitter && (
+                  <a href={siteConfig.socials.twitter} class="social-pill social-x" aria-label="X">
+                    <span class="social-mark">X</span>
+                    <span class="social-text">X</span>
+                  </a>
+                )}
                 {siteConfig.socials.linkedin && <a href={siteConfig.socials.linkedin} class="social-pill" aria-label="LinkedIn">in</a>}
                 {siteConfig.socials.facebook && (
                   <a href={siteConfig.socials.facebook} class="social-pill social-fb" aria-label="Facebook">
@@ -245,5 +250,20 @@ import { siteConfig } from '../config/site';
   .social-fb:hover {
     border-color: rgba(24, 119, 242, 0.5);
     box-shadow: 0 10px 24px rgba(24, 119, 242, 0.18);
+  }
+
+  .social-x {
+    border-color: rgba(15, 23, 42, 0.25);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(235, 237, 242, 0.9));
+  }
+
+  .social-x .social-mark {
+    background: #0f172a;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.24);
+  }
+
+  .social-x:hover {
+    border-color: rgba(15, 23, 42, 0.45);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
   }
 </style>
