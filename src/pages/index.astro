@@ -259,8 +259,17 @@ const subUnions = [
   </section>
 
   <section class="page-shell section-gap president-section">
-    <div class="president-card grid gap-8 lg:grid-cols-12 lg:items-start">
-      <div class="space-y-4 lg:col-span-7">
+    <div class="president-card space-y-6">
+      <figure class="president-photo">
+        <img
+          src="/assets/yonetim-kurulu/firat-cenberlitas.jpg"
+          alt="Fırat ÇENBERLİTAŞ - Genel Başkan"
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption>Genel Başkan Fırat ÇENBERLİTAŞ</figcaption>
+      </figure>
+      <div class="space-y-4">
         <span class="president-badge">Başkanın Sözü</span>
         <div class="space-y-2">
           <h2 class="text-3xl font-semibold text-slate-900">Başkanın Mesajı</h2>
@@ -325,17 +334,6 @@ const subUnions = [
           <p class="text-xs text-slate-600">Genel Başkan</p>
           <p class="text-xs text-slate-600">Türkiye Tarımsal Bal Üreticileri Merkez Birliği</p>
         </div>
-      </div>
-      <div class="lg:col-span-5 lg:pl-2">
-        <figure class="president-photo">
-          <img
-            src="/assets/yonetim-kurulu/firat-cenberlitas.png"
-            alt="Fırat ÇENBERLİTAŞ - Genel Başkan"
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption>Genel Başkan Fırat ÇENBERLİTAŞ</figcaption>
-        </figure>
       </div>
     </div>
   </section>
@@ -568,6 +566,7 @@ const subUnions = [
 
   .president-photo img {
     width: 100%;
+    max-height: 520px;
     height: auto;
     display: block;
     object-fit: cover;
