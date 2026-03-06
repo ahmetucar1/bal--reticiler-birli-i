@@ -18,7 +18,7 @@ order: 2
     </div>
   </div>
 
-  <div class="yk-assist-title">Başkan Yardımcıları</div>
+  <div class="yk-assist-title">Genel Başkan Yardımcıları</div>
   <div class="yk-assist-grid">
     <figure class="yk-card">
       <div class="yk-photo">
@@ -26,7 +26,7 @@ order: 2
       </div>
       <figcaption>
         <p class="yk-name">Sinan Uçar</p>
-        <p class="yk-role">Başkan Yardımcısı</p>
+        <p class="yk-role">Genel Başkan Yardımcısı</p>
       </figcaption>
     </figure>
     <figure class="yk-card">
@@ -35,7 +35,7 @@ order: 2
       </div>
       <figcaption>
         <p class="yk-name">Hasan Akyol</p>
-        <p class="yk-role">Başkan Yardımcısı</p>
+        <p class="yk-role">Genel Başkan Yardımcısı</p>
       </figcaption>
     </figure>
     <figure class="yk-card">
@@ -44,7 +44,7 @@ order: 2
       </div>
       <figcaption>
         <p class="yk-name">Mehmet Ali Kutlu</p>
-        <p class="yk-role">Başkan Yardımcısı</p>
+        <p class="yk-role">Genel Başkan Yardımcısı</p>
       </figcaption>
     </figure>
     <figure class="yk-card">
@@ -53,7 +53,7 @@ order: 2
       </div>
       <figcaption>
         <p class="yk-name">İsmail Şar</p>
-        <p class="yk-role">Başkan Yardımcısı</p>
+        <p class="yk-role">Genel Başkan Yardımcısı</p>
       </figcaption>
     </figure>
   </div>
@@ -117,7 +117,7 @@ order: 2
               </div>
               <figcaption>
                 <p class="yk-name">${escapeHtml(member.name)}</p>
-                <p class="yk-role">${escapeHtml(member.role)}</p>
+                <p class="yk-role">${escapeHtml(member.role || "Genel Başkan Yardımcısı")}</p>
               </figcaption>
             </figure>
           `;
@@ -134,7 +134,7 @@ order: 2
             <h3>${escapeHtml(lead.name)}</h3>
           </div>
         </div>
-        <div class="yk-assist-title">Başkan Yardımcıları</div>
+        <div class="yk-assist-title">Genel Başkan Yardımcıları</div>
         <div class="yk-assist-grid">
           ${memberCards}
         </div>
