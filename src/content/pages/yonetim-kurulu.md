@@ -97,6 +97,12 @@ order: 2
     const getMapFields = (field) => field?.mapValue?.fields || {};
     const getArrayValues = (field) => field?.arrayValue?.values || [];
 
+    const normalizeRole = (role, fallback) => {
+      if (!role) return fallback;
+      if (role === "Başkan Yardımcısı") return "Genel Başkan Yardımcısı";
+      return role;
+    };
+
     const renderBoard = (lead, members) => {
       const leadInitials = getInitials(lead.name) || "YK";
       const leadPhoto = lead.photoUrl
@@ -117,7 +123,7 @@ order: 2
               </div>
               <figcaption>
                 <p class="yk-name">${escapeHtml(member.name)}</p>
-                <p class="yk-role">${escapeHtml(member.role || "Genel Başkan Yardımcısı")}</p>
+                <p class="yk-role">${escapeHtml(normalizeRole(member.role, "Genel Başkan Yardımcısı"))}</p>
               </figcaption>
             </figure>
           `;
